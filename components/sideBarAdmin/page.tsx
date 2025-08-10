@@ -11,14 +11,13 @@ export function SideBarAdmin() {
 
   return (
     <aside className="w-52 border-r border-[#E2E8F0] dark:border-[#334155] bg-[#F8FAFC] dark:bg-[#121212] hidden md:flex flex-col transition-colors duration-200 pl-3 pr-3 py-4">
-  {/* Scrollable top navigation area */}
     <nav aria-label="Main navigation">
 
       <Navigation icon={<FaHome />} name="Home" href="/admin/dashboard" isActive={pathname === "/admin/dashboard"} />
 
-      <Navigation icon={<FaUsers />} name="Customers" href="/admin/dashboard/customers" isActive={pathname === "/admin/dashboard/customers"} />
+      <Navigation icon={<FaUsers />} name="Customers" href="/admin/dashboard/customers" isActive={pathname.startsWith("/admin/dashboard/customers")} />
       
-      <Navigation icon={<FaTruck />} name="Orders" href="/admin/dashboard/orders" isActive={pathname === "/admin/dashboard/orders"} />
+      <Navigation icon={<FaTruck />} name="Orders" href="/admin/dashboard/orders" isActive={pathname.startsWith("/admin/dashboard/orders")}/>
 
       <Navigation icon={<FaPills />} name="Medicines" href="/admin/dashboard/medicine" isActive={pathname === "/admin/dashboard/medicine"} />
 

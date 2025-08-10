@@ -14,7 +14,9 @@ export default function RootLayout({
         <ThemeProvider attribute="class" enableSystem defaultTheme="system"  >
           <div className="pt-16 flex h-[calc(100vh-64px)]">
             <SideBarAdmin/>
-            {children}
+            <div className="bg-gray-50 dark:bg-[#181818] w-full h-full">
+              {children}
+            </div>
           </div>
         </ThemeProvider>        
       </body>

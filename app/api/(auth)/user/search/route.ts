@@ -16,7 +16,7 @@ export async function GET(req: Request) {
 
     const user = await prisma.user.findMany({
       where: { phoneNo : {
-        contains: phoneNo,
+        startsWith : phoneNo
       } },
       take : 5,
       select : {
@@ -27,8 +27,8 @@ export async function GET(req: Request) {
     });
 
     if (user.length === 0) {
-      return new Response(JSON.stringify({ message: "No user found" }), {
-        status: 404,
+      return new Response(JSON.stringify({ message: "No user found",user }), {
+        status: 200,
         headers: { "Content-Type": "application/json" },
       });
     }
