@@ -1,13 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function AddCustomerPage() {
+  const searchParams = useSearchParams();
+  const phoneFromQuery = searchParams.get("phone") || "";
+
   const [name, setName] = useState("");
   const [phoneNo, setPhoneNo] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+
+   useEffect(() => {
+    if (phoneFromQuery) {
+      setPhoneNo(phoneFromQuery);
+    }
+  }, [phoneFromQuery]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -79,11 +79,8 @@ export async function POST(req : Request){
 
 
 
-
-
-export async function GET(req : Request){
-  try{
-
+export async function GET(req: Request) {
+  try {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
 
@@ -94,59 +91,61 @@ export async function GET(req : Request){
     const parsed = petSchema.safeParse({ userId });
 
     if (!parsed.success) {
-      return new Response(JSON.stringify({
-        message: "Invalid userId",
-      }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ message: "Invalid userId" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     const data = parsed.data;
-    
-    const users = await prisma.user.findFirst({
-      where : {
-        id : data.userId
-      }
-    })
 
-    if (!users) {
-      console.error("No users found. Please create users first.");
-      
-      return new Response(JSON.stringify({
-        message: "No users found. Please create users first",
-      }), {
-        status: 201,
-        headers: { "Content-Type": "application/json" },
-      });
+    const userWithPets = await prisma.user.findFirst({
+      where: { id: data.userId },
+      include: { pets: true }
+    });
+
+    if (!userWithPets) {
+      return new Response(
+        JSON.stringify({ message: "No users found. Please create users first" }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
-    const pets = await prisma.pet.findMany({
-      where : {
-        userId : data.userId
+    return new Response(
+      JSON.stringify({
+        message: "User and pets retrieved",
+        user: {
+          id: userWithPets.id,
+          name: userWithPets.name,
+          phoneNo: userWithPets.phoneNo,
+        },
+        pets: userWithPets.pets,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
       }
-    });
-
-
-    return new Response(JSON.stringify({
-      message: "pets given",
-      pets
-    }), {
-      status: 201,
-      headers: { "Content-Type": "application/json" },
-    });
-
-
-  }catch(err : any){
+    );
+  } catch (err: any) {
     console.error("GET pets error:", err);
 
-    return new Response(JSON.stringify({
-      message: "Internal Server Error",
-      error: err.message,
-    }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        message: "Internal Server Error",
+        error: err.message,
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
+
 

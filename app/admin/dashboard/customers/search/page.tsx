@@ -70,7 +70,7 @@ export default function Search() {
           {!loading && results.length === 0 && query.trim() && (
             <div className="flex flex-col items-center">
               <div>No user found</div>
-              <Link href="/admin/dashboard/customers">
+              <Link href={`/admin/dashboard/customers/add?phone=${query}`}>
                 <button className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
                   + Add
                 </button>
@@ -81,6 +81,7 @@ export default function Search() {
           {!loading &&
             results.map((user, idx) => (
               <UserInfo
+                id = {user.id}
                 key={idx}
                 name={user.name}
                 phoneNo={user.phoneNo}
@@ -93,32 +94,15 @@ export default function Search() {
   );
 }
 
-// type UserSchema = {
-//   name: string;
-//   phoneNo: string;
-//   profilePhoto: ReactNode;
-// };
-
-// function UserInfo({ name, phoneNo, profilePhoto }: UserSchema) {
-//   return (
-//     <div className="flex items-center justify-between px-4 py-2 border-b border-gray-300 dark:border-gray-600">
-//       <div className="flex items-center gap-2">
-//         <span className="text-lg">{profilePhoto}</span>
-//         <span>{name}</span>
-//       </div>
-//       <div>{phoneNo}</div>
-//     </div>
-//   );
-// }
-
 
 type UserSchema = {
+  id : string | undefined
   name: string;
   phoneNo: string;
   profilePhoto: ReactNode;
 };
 
-function UserInfo({ name, phoneNo, profilePhoto }: UserSchema) {
+function UserInfo({ id , name, phoneNo, profilePhoto }: UserSchema) {
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#1E1E1E] rounded-lg shadow-sm hover:shadow-md duration-200 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#2A2A2A] transition-colors ">
       {/* Left side: Avatar + Name */}
@@ -133,9 +117,11 @@ function UserInfo({ name, phoneNo, profilePhoto }: UserSchema) {
       </div>
 
       {/* Right side: View or Details button */}
-      <button className="px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:underline">
-        View
-      </button>
+      <Link href={`/admin/dashboard/customers/${id}`}>
+        <button className="px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:underline">
+          View
+        </button>
+      </Link>
     </div>
   );
 }

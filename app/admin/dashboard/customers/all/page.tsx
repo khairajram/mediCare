@@ -33,7 +33,6 @@ export default function CustomersList() {
     <div className="flex justify-center items-center h-full w-full p-6">
       <div className="bg-white dark:bg-[#1E1E1E] p-6 rounded-xl shadow-md text-gray-800 dark:text-white w-[800px]">
         
-        {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">All Customers</h2>
           <Link href="/admin/dashboard/customers">
@@ -43,7 +42,6 @@ export default function CustomersList() {
           </Link>
         </div>
 
-        {/* Loading / Error */}
         {loading && (
           <div className="text-center text-gray-500 dark:text-gray-400">Loading customers...</div>
         )}
@@ -51,23 +49,22 @@ export default function CustomersList() {
           <div className="text-center text-red-500">{error}</div>
         )}
 
-        {/* Empty State */}
         {!loading && customers.length === 0 && !error && (
           <div className="text-center text-gray-500 dark:text-gray-400">
             No customers found.
           </div>
         )}
 
-        {/* Customer List */}
         {!loading && customers.length > 0 && (
           <div className="mt-4 max-h-[500px] overflow-y-auto space-y-3 pr-2">
             {customers.map((user, idx) => (
-              <UserInfo
-                key={idx}
-                name={user.name}
-                phoneNo={user.phoneNo}
-                profilePhoto={<FaUser />}
-              />
+              <Link key={user.id} href={`${user.id}`} className="m-1">
+                <UserInfo
+                  name={user.name}
+                  phoneNo={user.phoneNo}
+                  profilePhoto={<FaUser />}
+                />
+              </Link>
             ))}
           </div>
         )}
