@@ -42,10 +42,10 @@ const prisma = new PrismaClient();
 //   }
 // }
 
-export async function PUT(req : Request , { params } : { params : { id : string }}){
+export async function PUT(req : Request /*, { params } : { params : { id : string }}*/){
   try{
 
-    const id = params.id;
+    // const id = params.id;
 
     const petSchema = z.object({
       userId: z.string().optional(),
@@ -82,17 +82,17 @@ export async function PUT(req : Request , { params } : { params : { id : string 
       });
     }
 
-    const update = await prisma.pet.update({
-      where : {
-        id
-      },
-      data : dataToUpdate
-    })
+    // const update = await prisma.pet.update({
+    //   where : {
+    //     id : 123
+    //   },
+    //   data : dataToUpdate
+    // })
 
 
     return new Response(JSON.stringify({
       message: "pet updated",
-      update
+      // update
     }), {
       status: 201,
       headers: { "Content-Type": "application/json" },
