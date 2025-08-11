@@ -26,6 +26,7 @@ type MedicineRecord = {
 export default function PetMedicineProfile() {
   const params = useParams();
   const petId = params.petProfile as string; 
+  const userId = params.custProfile as string; 
 
   const [pet, setPet] = useState<Pet | null>(null);
   const [medicines, setMedicines] = useState<MedicineRecord[]>([]);
@@ -48,7 +49,7 @@ export default function PetMedicineProfile() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch(`/api/medicine?petId=${petId}`);
+        const res = await fetch(`/api/medicine?id=${petId}`);
         if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
         const data = await res.json();
 
@@ -139,7 +140,7 @@ export default function PetMedicineProfile() {
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <FaPills className="text-blue-600" /> Pet Profile
           </h2>
-          <Link href="/admin/dashboard/customers">
+          <Link href={`/admin/dashboard/customers/${userId}`}>
             <button className="flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline">
               <FaArrowLeft /> Back
             </button>

@@ -48,7 +48,7 @@ export default function AddCustomerPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-[#121212] dark:text-white text-gray-800">
+    <div className="h-full flex items-center justify-center bg-gray-100 dark:bg-[#121212] dark:text-white text-gray-800">
       <div className="p-6 max-w-md w-full bg-white dark:bg-[#1E1E1E] rounded-lg shadow-md">
 
         <div className="flex justify-between items-center mb-4">

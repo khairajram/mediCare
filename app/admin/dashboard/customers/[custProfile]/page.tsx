@@ -321,7 +321,7 @@ type PetInfoProps = {
 function PetInfo({ userId , id ,name, species, breed, gender, dob }: PetInfoProps) {
   return (
     <Link href={`/admin/dashboard/customers/${userId}/${id}`}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2A2A2A] transition-colors">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2A2A2A] transition-colors mb-2">
         <div className="flex items-center gap-3">
           <span className="text-lg bg-gray-100 dark:bg-[#2A2A2A] p-2 rounded-full text-blue-600">
             <FaPaw />
