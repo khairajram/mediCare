@@ -1,16 +1,20 @@
 // app/admin/dashboard/reminders/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaBell, FaSearch } from "react-icons/fa";
 import Link from "next/link";
 
 interface Reminder {
-  id: number;
-  customerName: string;
+  id: string;
+  medicineName : string;
+  user_id : string;
+  userName: string;
+  pet_id : string;
   petName: string;
-  dueDate: string;
+  dateGiven: Date;
+  dueDate: Date;
   lastReminder: string;
   status: "Pending" | "Completed" | "Overdue";
 }
@@ -18,42 +22,17 @@ interface Reminder {
 export default function RemindersPage() {
   const router = useRouter();
 
-  const [reminders, setReminders] = useState<Reminder[]>([
-    {
-      id: 1,
-      customerName: "John Doe",
-      petName: "Buddy",
-      dueDate: "2025-08-12",
-      lastReminder: "2025-08-05",
-      status: "Pending",
-    },
-    {
-      id: 2,
-      customerName: "Sarah Lee",
-      petName: "Milo",
-      dueDate: "2025-08-09",
-      lastReminder: "2025-08-01",
-      status: "Overdue",
-    },
-    {
-      id: 3,
-      customerName: "Alex Smith",
-      petName: "Luna",
-      dueDate: "2025-08-20",
-      lastReminder: "-",
-      status: "Pending",
-    },
-  ]);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
 
-  const [selected, setSelected] = useState<number[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
 
-  const toggleSelect = (id: number) => {
+  const toggleSelect = (id: string) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
     );
   };
 
-  const sendReminder = (id: number) => {
+  const sendReminder = (id: string) => {
     alert(`Reminder sent to customer ID: ${id}`);
   };
 
@@ -61,8 +40,27 @@ export default function RemindersPage() {
     alert(`Bulk reminders sent to: ${selected.join(", ")}`);
   };
 
+  useEffect(() => {
+  const fetchMedicines = async () => {
+    const res = await fetch('/api/medicine/dueMedicines?days=0');
+    const data = await res.json(); 
+    setReminders(data.medicines); 
+  };
+
+  fetchMedicines();
+}, []);
+
+  function getDate(isoDate : Date){
+    const date = new Date(isoDate);
+
+    const formatted = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
+
+    return formatted; 
+  }
+
+
   return (
-    <div className="p-6 dark:text-white text-gray-800 bg-white dark:bg-[#1E1E1E] h-full">
+    <div className="p-6 dark:text-white text-gray-800 bg-white dark:bg-[#1E1E1E] ">
       
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-bold">Reminders</h1>
@@ -114,9 +112,10 @@ export default function RemindersPage() {
               </th>
               <th className="px-4 py-3">Customer</th>
               <th className="px-4 py-3">Pet</th>
+              <th className="px-4 py-3">Medicine</th>
+              <th className="px-4 py-3">Given Date</th>
               <th className="px-4 py-3">Due Date</th>
               <th className="px-4 py-3">Last Reminder</th>
-              <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3 text-right">Action</th>
             </tr>
           </thead>
@@ -133,8 +132,10 @@ export default function RemindersPage() {
                     onChange={() => toggleSelect(reminder.id)}
                   />
                 </td>
-                <td className="px-4 py-3">{reminder.customerName}</td>
+                <td className="px-4 py-3">{reminder.userName}</td>
                 <td className="px-4 py-3">{reminder.petName}</td>
+                <td className="px-4 py-3">{reminder.medicineName}</td>
+                <td className="px-4 py-3">{getDate(reminder.dateGiven)}</td>
                 <td
                   className={`px-4 py-3 ${
                     reminder.status === "Overdue"
@@ -144,7 +145,7 @@ export default function RemindersPage() {
                       : "text-green-600"
                   }`}
                 >
-                  {reminder.dueDate}
+                  {getDate(reminder.dueDate)}
                 </td>
                 <td className="px-4 py-3">{reminder.lastReminder}</td>
                 <td className="px-4 py-3">{reminder.status}</td>

@@ -16,6 +16,31 @@ model User {
   pets       Pet[]
 }
 
+
+model Medicine {
+  id                 String    @id @default(uuid())
+  name               String
+  type               MedicineForm
+  dose               String?
+  records            MedicineRecord[]
+}
+
+
+enum MedicineForm {
+  TABLET
+  SYRUP
+  INJECTION
+  TOPICAL
+  POWDER
+  LIQUID
+}
+
+
+
+
+
+
+
 model Pet {
   id         String            @id @default(uuid())
   userId     String
@@ -32,6 +57,7 @@ model Pet {
 model MedicineRecord {
   id           String   @id @default(uuid())
   petId        String
+  medicineId   String
   medicineName String
   dosage       String
   dateGiven    DateTime
@@ -39,4 +65,5 @@ model MedicineRecord {
   notes        String?
   createdAt    DateTime @default(now())
   pet          Pet      @relation(fields: [petId], references: [id])
+  Medicine          Medicine?      @relation(fields: [medicineId] , references: [id])
 }
