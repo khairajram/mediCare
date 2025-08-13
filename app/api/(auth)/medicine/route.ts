@@ -39,7 +39,8 @@ export async function POST(req : Request){
         dosage :      data.dosage,
         dateGiven :   data.dateGiven,
         nextDoseDue : data.nextDoseDue,
-        notes    :    data.notes
+        notes    :    data.notes,
+        medicineId : "NULL"
       }
     })
 
