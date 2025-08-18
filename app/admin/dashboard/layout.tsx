@@ -1,7 +1,7 @@
 import Header from "@/components/header/page";
 import { ThemeProvider } from "next-themes";
-import "../../globals.css";
 import { SideBarAdmin } from "@/components/sideBarAdmin/page";
+import { DataProvider } from "@/app/context/adminDataStore";
 
 export default function RootLayout({
   children,
@@ -12,12 +12,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="class" enableSystem defaultTheme="system"  >
-          <div className="pt-16 flex h-[calc(100vh-64px)]">
-            <SideBarAdmin/>
-            <div className="bg-gray-50 dark:bg-[#181818] w-full h-full">
-              {children}
-            </div>
-          </div>
+            <Header/>
+            <DataProvider>
+              <div className="pt-16 flex h-[calc(100vh-64px)]">
+                <SideBarAdmin/>
+                <main className="bg-gray-50 dark:bg-[#181818] w-full h-full">
+                  {children}
+                </main>
+              </div>
+          </DataProvider>
         </ThemeProvider>        
       </body>
     </html>

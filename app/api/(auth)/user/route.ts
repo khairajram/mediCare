@@ -1,9 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
+import Twilio from "twilio";
+
+const client = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
 const userSchema = z.object({
   name: z.string().min(1),
   phoneNo: z.string().regex(/^\d{10}$/),
+  address : z.string()
 });
 
 const prisma = new PrismaClient();
@@ -16,6 +21,7 @@ export async function GET(req : Request){
         id : true,
         name : true,
         phoneNo : true,
+        address : true
       }
     })
 
@@ -42,7 +48,7 @@ export async function GET(req : Request){
 }
 
 
-export async function PUT(req: Request) {
+export async function POST(req: Request) {
   try {
     const body =  await req.json();
 
@@ -51,14 +57,14 @@ export async function PUT(req: Request) {
     if (!parsed.success) {
       return new Response(JSON.stringify({
         message: "Validation error",
-        errors: parsed.error
+        errors: parsed.error.flatten()
       }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
       });
     }
 
-    const { name, phoneNo } = parsed.data;
+    const { name, phoneNo ,address } = parsed.data;
 
     const existing = await prisma.user.findUnique({
       where: { phoneNo },
@@ -74,9 +80,12 @@ export async function PUT(req: Request) {
     const response = await prisma.user.create({
       data: {
         name,
-        phoneNo
+        phoneNo,
+        address
       },
     });
+
+    sendWelcomeSMS(phoneNo, name);
 
     return new Response(JSON.stringify({
       message: "User created",
@@ -97,3 +106,18 @@ export async function PUT(req: Request) {
     });
   }
 }
+
+async function sendWelcomeSMS(phoneNo: string, userName: string) {
+  try {
+    await client.messages.create({
+      to: phoneNo,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      body: `Hello ${userName}! Thank you for registering at Shree Karni Medical & Pet Care Center. We’re happy to have you and your pet with us!`,
+    });
+  } catch (err: any) {
+    console.error("Error sending SMS:", err.message);
+  }
+}
+
+
+

@@ -89,6 +89,9 @@ export async function GET(req : Request){
     const medicines = await prisma.medicineRecord.findMany({
       where : {
         petId : id
+      },
+      include : {
+        pet : true
       }
     })
 

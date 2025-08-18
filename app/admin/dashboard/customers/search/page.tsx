@@ -4,33 +4,35 @@ import { useState, useEffect, useMemo, ReactNode } from "react";
 import { FaSearch, FaUser } from "react-icons/fa";
 import debounce from "lodash.debounce";
 import Link from "next/link";
+import { useData } from "@/app/context/adminDataStore";
 
 export default function Search() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const { users } = useData();
+
   const debouncedSearch = useMemo(
     () =>
-      debounce(async (q: string) => {
+      debounce((q: string) => {
         if (!q.trim()) {
           setResults([]);
           return;
         }
 
-        try {
-          setLoading(true);
-          const res = await fetch(`/api/user/search?phone=${encodeURIComponent(q)}`);
-          if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-          const data = await res.json();
-          setResults(data?.user || []);
-        } catch (error) {
-          console.error("Search error:", error);
-        } finally {
-          setLoading(false);
-        }
+        setLoading(true);
+
+        const filtered = users.filter(
+          (u) =>
+            u.phoneNo.toLowerCase().includes(q.toLowerCase()) ||
+            u.name.toLowerCase().includes(q.toLowerCase())
+        );
+
+        setResults(filtered);
+        setLoading(false);
       }, 300),
-    []
+    [users]
   );
 
   useEffect(() => {
@@ -59,13 +61,18 @@ export default function Search() {
             placeholder="Search Customer"
             aria-label="Search Customer"
             value={query}
+            autoFocus
             onChange={(e) => setQuery(e.target.value)}
             className="w-full bg-transparent focus:outline-none text-sm placeholder-gray-400 dark:placeholder-gray-500 text-black dark:text-white"
           />
         </div>
 
         <div className="mt-6 max-h-96 overflow-y-auto space-y-4 pr-2">
-          {loading && <div className="text-gray-500 text-sm items-center justify-center">Searching...</div>}
+          {loading && (
+            <div className="text-gray-500 text-sm items-center justify-center">
+              Searching...
+            </div>
+          )}
 
           {!loading && results.length === 0 && query.trim() && (
             <div className="flex flex-col items-center">
@@ -79,10 +86,10 @@ export default function Search() {
           )}
 
           {!loading &&
-            results.map((user, idx) => (
+            results.map((user) => (
               <UserInfo
-                id = {user.id}
-                key={idx}
+                id={user.id}
+                key={user.id}
                 name={user.name}
                 phoneNo={user.phoneNo}
                 profilePhoto={<FaUser />}
@@ -94,29 +101,31 @@ export default function Search() {
   );
 }
 
-
 type UserSchema = {
-  id : string | undefined
+  id: string | undefined;
   name: string;
   phoneNo: string;
   profilePhoto: ReactNode;
 };
 
-function UserInfo({ id , name, phoneNo, profilePhoto }: UserSchema) {
+function UserInfo({ id, name, phoneNo, profilePhoto }: UserSchema) {
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#1E1E1E] rounded-lg shadow-sm hover:shadow-md duration-200 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#2A2A2A] transition-colors ">
-      {/* Left side: Avatar + Name */}
+      
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 flex items-center justify-center bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-lg">
           {profilePhoto}
         </div>
         <div className="flex flex-col">
-          <span className="font-medium text-gray-900 dark:text-white">{name}</span>
-          <span className="text-sm text-gray-500 dark:text-gray-400">{phoneNo}</span>
+          <span className="font-medium text-gray-900 dark:text-white">
+            {name}
+          </span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {phoneNo}
+          </span>
         </div>
       </div>
 
-      {/* Right side: View or Details button */}
       <Link href={`/admin/dashboard/customers/${id}`}>
         <button className="px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:underline">
           View

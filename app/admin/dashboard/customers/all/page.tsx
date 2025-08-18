@@ -1,33 +1,12 @@
 "use client";
 
-import { useState, useEffect, ReactNode } from "react";
+import { ReactNode } from "react";
 import { FaUser, FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
+import { useData, User } from "@/app/context/adminDataStore";
 
 export default function CustomersList() {
-  const [customers, setCustomers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      setLoading(true);
-      setError("");
-
-      try {
-        const res = await fetch("/api/user"); 
-        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-        const data = await res.json();
-        setCustomers(data?.users || []);
-      } catch (err: any) {
-        setError(err.message || "Something went wrong");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCustomers();
-  }, []);
+  const { users } = useData();
 
   return (
     <div className="flex justify-center items-center h-full w-full p-6">
@@ -42,22 +21,13 @@ export default function CustomersList() {
           </Link>
         </div>
 
-        {loading && (
-          <div className="text-center text-gray-500 dark:text-gray-400">Loading customers...</div>
-        )}
-        {error && (
-          <div className="text-center text-red-500">{error}</div>
-        )}
-
-        {!loading && customers.length === 0 && !error && (
+        {users.length === 0 ? (
           <div className="text-center text-gray-500 dark:text-gray-400">
             No customers found.
           </div>
-        )}
-
-        {!loading && customers.length > 0 && (
+        ) : (
           <div className="mt-4 max-h-[500px] overflow-y-auto space-y-3 pr-2">
-            {customers.map((user, idx) => (
+            {users.map((user: User) => (
               <Link key={user.id} href={`${user.id}`} className="m-1">
                 <UserInfo
                   name={user.name}

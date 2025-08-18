@@ -1,10 +1,11 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, useEffect, ReactNode, FormEvent, useId } from "react";
+import { useState, useEffect, ReactNode, FormEvent, useId, use } from "react";
 import { FaPaw, FaArrowLeft, FaUser } from "react-icons/fa";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useData, User } from "@/app/context/adminDataStore";
 
 type Pet = {
   id: string;
@@ -15,11 +16,7 @@ type Pet = {
   dob?: string;
 };
 
-type User = {
-  id: string;
-  name: string;
-  phoneNo: string;
-};
+
 
 export default function CustomerProfile() {
   const params = useParams();
@@ -27,10 +24,13 @@ export default function CustomerProfile() {
 
   const router = useRouter();
 
-  const [user, setUser] = useState<User | null>(null);
+  const { users } = useData();  
+
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const user = users.find((u) => u.id === id)
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -53,7 +53,6 @@ export default function CustomerProfile() {
         if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
         const data = await res.json();
 
-        setUser(data.user);
         setPets(data.pets || []);
         console.log(data.pet);
       } catch (err: any) {
@@ -140,9 +139,35 @@ export default function CustomerProfile() {
             </button>
         </div>
 
+        {!error && user && (
+          <div className="mb-8 border-b border-gray-300 dark:border-gray-700 pb-6">
+            <div className="flex items-center justify-between">
+              
+              <div className="flex items-center gap-4">
+                <FaUser className="text-4xl text-blue-500" />
+                <div>
+                  <h3 className="text-lg font-semibold">{user.name}</h3>
+                  <p className="text-gray-600 dark:text-gray-400">{user.phoneNo}</p>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <div>Address</div>
+                <p className="text-gray-800 dark:text-gray-300">{user.address}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {loading && (
           <div className="text-center text-gray-500 dark:text-gray-400 mb-6">
-            Loading user and pets...
+
+            <div className="flex flex-col items-center justify-center space-y-3">
+              <div className="h-6 w-32 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+              <div className="h-6 w-48 bg-gray-300 dark:bg-gray-700 rounded animate-pulse"></div>
+              <div className="h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+
           </div>
         )}
 
@@ -150,17 +175,7 @@ export default function CustomerProfile() {
           <div className="text-center text-red-500 mb-6">{error}</div>
         )}
 
-        {!loading && !error && user && (
-          <div className="mb-8 border-b border-gray-300 dark:border-gray-700 pb-6">
-            <div className="flex items-center gap-4">
-              <FaUser className="text-4xl text-blue-500" />
-              <div>
-                <h3 className="text-lg font-semibold">{user.name}</h3>
-                <p className="text-gray-600 dark:text-gray-400">{user.phoneNo}</p>
-              </div>
-            </div>
-          </div>
-        )}
+        
 
         {!loading && !error && pets.length === 0 && (
           <div className="text-center text-gray-500 dark:text-gray-400">

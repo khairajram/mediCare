@@ -124,6 +124,7 @@ export async function GET(req: Request) {
           id: userWithPets.id,
           name: userWithPets.name,
           phoneNo: userWithPets.phoneNo,
+          address: userWithPets.address,
         },
         pets: userWithPets.pets,
       }),

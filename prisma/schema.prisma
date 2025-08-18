@@ -13,6 +13,7 @@ model User {
   name String
   phoneNo      String   @unique
   createdAt  DateTime @default(now())
+  address    String? @default("Unknown")
   pets       Pet[]
 }
 
@@ -50,7 +51,7 @@ model Pet {
   gender     String?
   dob        DateTime?
   createdAt  DateTime          @default(now())
-  user       User              @relation(fields: [userId], references: [id])
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   medicines  MedicineRecord[]
 }
 
@@ -58,12 +59,12 @@ model MedicineRecord {
   id           String   @id @default(uuid())
   petId        String
   medicineId   String
-  medicineName String
   dosage       String
+  isNextdose   Boolean @default(false)
   dateGiven    DateTime
   nextDoseDue  DateTime?
   notes        String?
   createdAt    DateTime @default(now())
-  pet          Pet      @relation(fields: [petId], references: [id])
-  Medicine          Medicine?      @relation(fields: [medicineId] , references: [id])
+  pet          Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  Medicine          Medicine      @relation(fields: [medicineId] , references: [id])
 }
