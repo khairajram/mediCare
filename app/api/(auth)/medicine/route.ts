@@ -9,7 +9,7 @@ export async function POST(req : Request){
 
     const petSchema = z.object({
       petId: z.string(),
-      medicineName: z.string(),
+      medicineId: z.string(),
       dosage: z.string(),
       dateGiven: z.coerce.date(),
       nextDoseDue: z.coerce.date().optional(),
@@ -35,12 +35,11 @@ export async function POST(req : Request){
     const res = await prisma.medicineRecord.create({
       data : {
         petId :        data.petId,
-        medicineName : data.medicineName,
         dosage :      data.dosage,
         dateGiven :   data.dateGiven,
         nextDoseDue : data.nextDoseDue,
         notes    :    data.notes,
-        medicineId : "NULL"
+        medicineId : data.medicineId
       }
     })
 
@@ -86,20 +85,21 @@ export async function GET(req : Request){
     }
 
     
-    const medicines = await prisma.medicineRecord.findMany({
+    const pet = await prisma.pet.findUnique({
       where : {
-        petId : id
+        id : id
       },
       include : {
-        pet : true
+        medicines : true
       }
     })
 
-    if (medicines.length === 0) {
+    if (pet?.medicines.length === 0) {
       console.log("No medicines found");
       
       return new Response(JSON.stringify({
         message: "No medicines found",
+        pet
       }), {
         status: 201,
         headers: { "Content-Type": "application/json" },
@@ -109,7 +109,7 @@ export async function GET(req : Request){
 
     return new Response(JSON.stringify({
       message: "medicines given",
-      medicines
+      pet
     }), {
       status: 201,
       headers: { "Content-Type": "application/json" },

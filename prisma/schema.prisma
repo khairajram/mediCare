@@ -60,7 +60,6 @@ model MedicineRecord {
   petId        String
   medicineId   String
   dosage       String
-  isNextdose   Boolean @default(false)
   dateGiven    DateTime
   nextDoseDue  DateTime?
   notes        String?
