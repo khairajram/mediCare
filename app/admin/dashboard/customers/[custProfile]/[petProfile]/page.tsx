@@ -21,6 +21,7 @@ function calculateAge(dob: string) {
   return Math.abs(ageDt.getUTCFullYear() - 1970);
 }
 
+
 export default function PetDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,7 +102,8 @@ export default function PetDetailsPage() {
       {openModal && (
         <AddMedicineModal
           onClose={() => setOpenModal(false)}
-          onSave={(newMed : any) => setMedicines((prev) => [...prev, newMed])}
+          // onSave={(newMed : any) => setMedicines((prev) => [...prev, newMed])} 
+          petId={petId}
         />
       )}
     </div>
@@ -174,22 +176,20 @@ type MedicineForm = {
     type: string;
     dose: string | null; 
   };
-  dosage: string;
   dateGiven: string;
   nextDoseDue: string ;  
   notes: string;
 };
 
-function AddMedicineModal({ onClose, onSave }: any) {
+function AddMedicineModal({ onClose, onSave, petId }: any) {
   const [form, setForm] = useState<MedicineForm>({
-    petId: "",
+    petId: petId,
     medicine : {
       medicineName : "",
       medicineId : "",
       type : "",
       dose : null 
     },
-    dosage: "",
     dateGiven: "",
     nextDoseDue: "",
     notes: "",
@@ -198,11 +198,11 @@ function AddMedicineModal({ onClose, onSave }: any) {
 
   const { medicines: allMedicines } = useData();
 
-  function mediSuggestions(){
-    const data = form.medicine.medicineName.trim().length > 0
+  function mediSuggestions(value : string){
+    const data = value.trim().length > 0
       ? allMedicines
           .filter((med: Medicine) =>
-            med.name.toLowerCase().startsWith(form.medicine.medicineName.toLowerCase())
+            med.name.toLowerCase().startsWith(value.toLowerCase())
           )
           .slice(0, 5)
       : [];
@@ -213,10 +213,46 @@ function AddMedicineModal({ onClose, onSave }: any) {
 
     
 
-  function handleSubmit(e: any) {
+   async function handleSubmit(e: any) {
     e.preventDefault();
-    onSave({ id: Date.now(), ...form });
-    onClose();
+    try{
+
+      const newMed = {
+        id: Date.now(),
+        petId: form.petId,
+        medicineName: form.medicine.medicineName,
+        medicineId: form.medicine.medicineId,
+        type: form.medicine.type,
+        dose: form.medicine.dose,
+        dateGiven: form.dateGiven,
+        nextDoseDue: form.nextDoseDue,
+        notes: form.notes,
+      };
+
+      const data = {
+        petId :        form.petId,
+        medicineId :   form.medicine.medicineId,
+        dosage :      form.medicine.dose,
+        dateGiven :   form.dateGiven,
+        nextDoseDue : form.nextDoseDue,
+        notes    :    form.notes,
+      }
+
+      const res = await fetch("/api/medicine",{
+        method : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data) 
+      })
+      if (!res.ok) throw new Error("Failed to save medicine");
+
+      onSave(newMed);
+    }catch(err){
+
+    }
+    
+
   }
 
   return (
@@ -228,11 +264,16 @@ function AddMedicineModal({ onClose, onSave }: any) {
         <h2 className="text-xl font-semibold">➕ Add Medicine</h2>
 
         <div className="relative">
+          <label className="block text-sm font-medium">Medicine</label>
           <input
             required
             placeholder="Medicine"
             value={form.medicine.medicineName}
-            onChange={(e) => setForm(prev => ({...prev ,medicine : { ...prev.medicine, medicineName : e.target.value} }))}
+            onChange={(e) => { 
+              const value = e.target.value;
+              setForm(prev => ({...prev ,medicine : { ...prev.medicine, medicineName : value} }));
+              mediSuggestions(value);
+            }}
             className="w-full p-2 border rounded-lg dark:bg-[#2A2A2A]"
           />
 
@@ -263,28 +304,41 @@ function AddMedicineModal({ onClose, onSave }: any) {
         </div>
 
         
-        {form.medicine.dose && <input
-          required
-          placeholder="Dosage"
-          value={form.medicine.dose}
-          onChange={(e) => setForm({ ...form, dosage: e.target.value })}
-          className="w-full p-2 border rounded-lg dark:bg-[#2A2A2A]"
-        />}
+        {form.medicine.dose && 
+          <div>
+            <label className="block text-sm font-medium">Dosage</label>
+            <input
+              required
+              placeholder="Dosage"
+              value={form.medicine.dose}
+              onChange={(e) => setForm(prev => ({...prev ,medicine : { ...prev.medicine, dose : e.target.value} }))}
+              className="w-full p-2 border rounded-lg dark:bg-[#2A2A2A]"
+            />
+          </div>
+        }
 
-        <input
-          type="date"
-          required
-          value={form.dateGiven}
-          onChange={(e) => setForm({ ...form, dateGiven: e.target.value })}
-          className="w-full p-2 border rounded-lg dark:bg-[#2A2A2A]"
-        />
+        <div>
+          <label className="block text-sm font-medium">Given Date</label>
+          <input
+            type="date"
+            required
+            value={form.dateGiven}
+            onChange={(e) => setForm({ ...form, dateGiven: e.target.value })}
+            className="w-full p-2 border rounded-lg dark:bg-[#2A2A2A]"
+          />
+        </div>
 
-        {form.medicine.type === "INJECTION" && <input
-          type="date"
-          value={form.nextDoseDue}
-          onChange={(e) => setForm({ ...form, nextDoseDue: e.target.value })}
-          className="w-full p-2 border rounded-lg dark:bg-[#2A2A2A]"
-        />}
+        {form.medicine.type === "INJECTION" && 
+          <div>
+            <label className="block text-sm font-medium">Next Dose Due</label>
+            <input
+              type="date"
+              value={form.nextDoseDue}
+              onChange={(e) => setForm({ ...form, nextDoseDue: e.target.value })}
+              className="w-full p-2 border rounded-lg dark:bg-[#2A2A2A]"
+            />
+          </div>
+        }
 
         <textarea
           placeholder="Notes"

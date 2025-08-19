@@ -59,7 +59,7 @@ model MedicineRecord {
   id           String   @id @default(uuid())
   petId        String
   medicineId   String
-  dosage       String
+  dosage       String?
   dateGiven    DateTime
   nextDoseDue  DateTime?
   notes        String?

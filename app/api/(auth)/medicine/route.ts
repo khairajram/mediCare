@@ -35,11 +35,11 @@ export async function POST(req : Request){
     const res = await prisma.medicineRecord.create({
       data : {
         petId :        data.petId,
+        medicineId : data.medicineId,
         dosage :      data.dosage,
         dateGiven :   data.dateGiven,
         nextDoseDue : data.nextDoseDue,
         notes    :    data.notes,
-        medicineId : data.medicineId
       }
     })
 
