@@ -52,7 +52,7 @@ export default function Header() {
         </h1>
 
         {/* Search bar */}
-        <div className="flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-md px-3 h-10 w-64 focus-within:ring-2 focus-within:ring-blue-500 dark:bg-[#1e1e1e]">
+        <div className="hidden md:flex flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-md px-3 h-10 w-64 focus-within:ring-2 focus-within:ring-blue-500 dark:bg-[#1e1e1e]">
           <FaSearch className="text-gray-500 dark:text-gray-400" />
           <input
             type="text"
@@ -63,7 +63,7 @@ export default function Header() {
         </div>
 
         {/* Icons */}
-        <div className="hidden md:flex items-center gap-4 text-xl text-black dark:text-white">
+        <div className="flex items-center gap-4 text-xl text-black dark:text-white">
           <div className="pb-9 hover:text-blue-600 transition">
             <ThemeToggle />
           </div>

@@ -10,7 +10,7 @@ export function SideBarAdmin() {
   const [customerOpen, setCustomerOpen] = useState(false)
 
   return (
-    <aside className="w-52 border-r border-[#E2E8F0] dark:border-[#334155] bg-[#F8FAFC] dark:bg-[#121212] hidden md:flex flex-col transition-colors duration-200 pl-3 pr-3 py-4">
+    <aside className="w-52 border-r border-[#E2E8F0] dark:border-[#334155] bg-[#F8FAFC] dark:bg-[#121212] hidden md:flex flex-col transition-colors duration-200 pl-3 pr-3 py-4 fixed h-screen">
     <nav aria-label="Main navigation">
 
       <Navigation icon={<FaHome />} name="Home" href="/admin/dashboard" isActive={pathname === "/admin/dashboard"} />

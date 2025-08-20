@@ -11,7 +11,7 @@ const cardClass =
 export default function Customer() {
 
   return (
-    <div className="h-full w-full p-4 flex justify-center items-center min-h-[calc(100vh-4rem)]">
+    <div className="p-4 flex justify-center items-center min-h-[calc(100vh-4rem)] m-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-4xl w-full">
           <Link href={'/admin/dashboard/customers/search'}>
             <div className={cardClass}>

@@ -1,40 +1,33 @@
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
-
+import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 import Twilio from "twilio";
 
 const client = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const prisma = new PrismaClient();
 
 const userSchema = z.object({
   name: z.string().min(1),
   phoneNo: z.string().regex(/^\d{10}$/),
-  address : z.string()
+  address: z.string(),
+  email: z.string(),
 });
 
-const prisma = new PrismaClient();
-
-export async function GET(req : Request){
-
-  try{
+export async function GET(req: Request) {
+  try {
     const users = await prisma.user.findMany({
-      select : {
-        id : true,
-        name : true,
-        phoneNo : true,
-        address : true
-      }
-    })
+      select: { id: true, name: true, phoneNo: true, address: true },
+    });
 
     return new Response(JSON.stringify({
-      "message" : "all users",
-      users
-      }),
-      {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-      }
-    )
-  }catch(err : any){
+      message: "all users",
+      users,
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err: any) {
     console.error("get user error:", err);
 
     return new Response(JSON.stringify({
@@ -47,24 +40,22 @@ export async function GET(req : Request){
   }
 }
 
-
 export async function POST(req: Request) {
   try {
-    const body =  await req.json();
-
+    const body = await req.json();
     const parsed = userSchema.safeParse(body);
 
     if (!parsed.success) {
       return new Response(JSON.stringify({
         message: "Validation error",
-        errors: parsed.error.flatten()
+        errors: parsed.error.flatten(),
       }), {
         status: 400,
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       });
     }
 
-    const { name, phoneNo ,address } = parsed.data;
+    const { name, phoneNo, address,email } = parsed.data;
 
     const existing = await prisma.user.findUnique({
       where: { phoneNo },
@@ -78,14 +69,11 @@ export async function POST(req: Request) {
     }
 
     const response = await prisma.user.create({
-      data: {
-        name,
-        phoneNo,
-        address
-      },
+      data: { name, phoneNo, address,email },
     });
 
-    sendWelcomeSMS(phoneNo, name);
+    // ✅ Pass user info into sendMail
+    await sendMail(name, phoneNo, address,email);
 
     return new Response(JSON.stringify({
       message: "User created",
@@ -107,17 +95,40 @@ export async function POST(req: Request) {
   }
 }
 
-async function sendWelcomeSMS(phoneNo: string, userName: string) {
+async function sendMail(name: string, phoneNo: string, address: string,email : string) {
   try {
-    await client.messages.create({
-      to: phoneNo,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      body: `Hello ${userName}! Thank you for registering at Shree Karni Medical & Pet Care Center. We’re happy to have you and your pet with us!`,
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
     });
+
+    await transporter.sendMail({
+      from: `"Karni Medical" <${process.env.GMAIL_USER}>`,
+      to: email, // could also send to the user if you collect email
+      subject: `Welcome to Karni Medical, ${name}! 🎉`,
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+          <h2 style="color: #2c3e50;">Welcome, ${name}!</h2>
+          <p>We’re excited to have you join <strong>Karni Medical</strong>.</p>
+          <p>Here’s the information we have on file for you:</p>
+          <ul>
+            <li><strong>Name:</strong> ${name}</li>
+            <li><strong>Phone:</strong> ${phoneNo}</li>
+            <li><strong>Address:</strong> ${address}</li>
+          </ul>
+          <p>If anything looks incorrect, please contact our support team.</p>
+          <p style="margin-top:20px;">Thank you for choosing us 💙</p>
+          <p>— The Karni Medical Team</p>
+        </div>
+      `,
+    });
+
+    return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error("Error sending SMS:", err.message);
+    console.error("SendMail error:", err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
-
-
-

@@ -10,20 +10,21 @@ export async function POST(req : Request){
     const petSchema = z.object({
       petId: z.string(),
       medicineId: z.string(),
-      dosage: z.string(),
       dateGiven: z.coerce.date(),
       nextDoseDue: z.coerce.date().optional(),
-      notes: z.string().optional()
+      notes: z.string().optional(),
+      isDoseDate : z.boolean()
     });
 
     const body = await req.json();
-    const parsed = petSchema.safeParse(body);
+    const  parsed = petSchema.safeParse(body);
 
     if(!parsed.success){
       console.error("invalid input data");
       
       return new Response(JSON.stringify({
-        message: " invalid input data",
+        message: "invalid input data",
+        error : parsed.error.format()
       }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
@@ -36,17 +37,17 @@ export async function POST(req : Request){
       data : {
         petId :        data.petId,
         medicineId : data.medicineId,
-        dosage :      data.dosage,
         dateGiven :   data.dateGiven,
         nextDoseDue : data.nextDoseDue,
         notes    :    data.notes,
+        isDoseDate : data.isDoseDate
       }
     })
 
 
 
     return new Response(JSON.stringify({
-      message: "pets created",
+      message: "medicine created",
       res
     }), {
       status: 201,
@@ -90,7 +91,11 @@ export async function GET(req : Request){
         id : id
       },
       include : {
-        medicines : true
+        medicines : {
+          include : {
+            Medicine : true
+          }
+        }
       }
     })
 

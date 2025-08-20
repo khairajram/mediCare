@@ -13,6 +13,7 @@ export default function AddCustomerPage() {
 
   const [name, setName] = useState("");
   const [phoneNo, setPhoneNo] = useState("");
+  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -39,7 +40,7 @@ export default function AddCustomerPage() {
       const res = await fetch("/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phoneNo, address }),
+        body: JSON.stringify({ name, phoneNo, address,email }),
       });
 
       if (res.status === 409) {
@@ -51,6 +52,7 @@ export default function AddCustomerPage() {
           setName("");
           setPhoneNo("");
           setAddress("");
+          setEmail("");
           refreshUsers();
         } else {
           setMessage(`❌ ${data.message || "Something went wrong"}`);
@@ -115,6 +117,20 @@ export default function AddCustomerPage() {
               className="border border-gray-300 rounded px-3 py-2 w-full"
               value={phoneNo}
               onChange={(e) => setPhoneNo(e.target.value)}
+              disabled={loading}
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium">email</label>
+            <input
+              id="email"
+              type="email"
+              aria-label="email"
+              className="border border-gray-300 rounded px-3 py-2 w-full"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
               required
             />

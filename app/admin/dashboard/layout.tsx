@@ -16,7 +16,7 @@ export default function RootLayout({
             <DataProvider>
               <div className="pt-16 flex h-[calc(100vh-64px)]">
                 <SideBarAdmin/>
-                <main className="bg-gray-50 dark:bg-[#181818] w-full h-full">
+                <main className="bg-gray-50 dark:bg-[#141414]  md:pl-52 pl-0 w-full  h-[calc(100vh-64px)] min-w-[450px]">
                   {children}
                 </main>
               </div>

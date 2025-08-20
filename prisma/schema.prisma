@@ -12,6 +12,7 @@ model User {
   id         String   @id @default(uuid())
   name String
   phoneNo      String   @unique
+  email      String?    
   createdAt  DateTime @default(now())
   address    String? @default("Unknown")
   pets       Pet[]
@@ -59,9 +60,9 @@ model MedicineRecord {
   id           String   @id @default(uuid())
   petId        String
   medicineId   String
-  dosage       String?
   dateGiven    DateTime
-  nextDoseDue  DateTime?
+  isDoseDate   Boolean?  @default(false)
+  nextDoseDue  DateTime? 
   notes        String?
   createdAt    DateTime @default(now())
   pet          Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)

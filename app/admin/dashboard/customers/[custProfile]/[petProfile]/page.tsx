@@ -2,8 +2,9 @@
 
 import { Medicine, useData } from "@/app/context/adminDataStore";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { FaPaw } from "react-icons/fa";
+import { FaArrowLeft, FaPaw } from "react-icons/fa";
 import { string } from "zod";
 
 function formatDate(date: string) {
@@ -29,10 +30,11 @@ export default function PetDetailsPage() {
   const [medicines, setMedicines] = useState<any[]>([]);
   const [openModal, setOpenModal] = useState(false);
 
+  const router = useRouter();
+
   const params = useParams();
   const petId = params.petProfile as string;
 
-  // ✅ Fetch Pet + Medicines
   useEffect(() => {
     async function fetchData() {
       try {
@@ -43,7 +45,7 @@ export default function PetDetailsPage() {
         if (!res.ok) throw new Error("Failed to load pet data");
         const data = await res.json();
         setPet(data.pet);
-        setMedicines(data.medicines);
+        setMedicines(data.pet.medicines);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -53,7 +55,6 @@ export default function PetDetailsPage() {
     fetchData();
   }, [petId]);
 
-  // ✅ Skeleton Loader
   const Skeleton = () => (
     <div className="animate-pulse space-y-4">
       <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded-lg" />
@@ -62,8 +63,10 @@ export default function PetDetailsPage() {
     </div>
   );
 
+ 
+
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="max-w-2xl mx-auto pt-6 h-full max-h-fit">
       {loading && <Skeleton />}
 
       {error && (
@@ -76,23 +79,30 @@ export default function PetDetailsPage() {
       )}
 
       {!loading && !error && pet && (
-        <PetCard pet={pet} formatDate={formatDate} calculateAge={calculateAge} />
+        <div>
+            <PetCard pet={pet} formatDate={formatDate} calculateAge={calculateAge} />
+        </div>
+        
       )}
 
-      {!loading && !error && medicines && (
-        <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 mb-6">
+      {!loading && !error && medicines.length > 0 && (
+        <div className="space-y-1 max-h-[50vh] overflow-y-auto pr-2 mb-6">
           {medicines.map((med) => (
             <MedicineInfo key={med.id} med={med} formatDate={formatDate} />
           ))}
         </div>
       )}
 
-      {!loading && !error && !medicines && (
+      {!loading && !error && (
         <div className="flex flex-col items-center text-center p-6 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
-          <span className="text-4xl mb-2">🐾</span>
-          <p className="text-gray-600 dark:text-gray-400">
-            No medicine records yet
-          </p>
+          { medicines.length === 0 && <div>
+            <span className="text-4xl mb-2">🐾</span>
+            <p className="text-gray-600 dark:text-gray-400">
+              No medicine records yet
+            </p>
+          </div>
+          }      
+          
           <button className="mt-3 text-gray-600 dark:text-gray-400" onClick={() => setOpenModal(true)}>
             ➕ Add First Medicine
           </button>
@@ -102,7 +112,10 @@ export default function PetDetailsPage() {
       {openModal && (
         <AddMedicineModal
           onClose={() => setOpenModal(false)}
-          // onSave={(newMed : any) => setMedicines((prev) => [...prev, newMed])} 
+          onSave={(newMed : any) => {
+             setMedicines((prev) => [...prev, newMed]);
+             setOpenModal(false)            
+            }} 
           petId={petId}
         />
       )}
@@ -112,8 +125,9 @@ export default function PetDetailsPage() {
 
 
 function PetCard({ pet, formatDate, calculateAge }: any) {
+  const router = useRouter();
   return (
-    <div className="mb-8 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-white dark:from-[#1E1E1E] dark:to-[#2A2A2A] shadow-sm">
+    <div className="mb-8 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-white dark:from-[#1E1E1E] dark:to-[#2A2A2A] shadow-sm flex justify-between">
       <div className="flex items-center gap-4">
         <span className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-2xl">
           <FaPaw />
@@ -134,6 +148,14 @@ function PetCard({ pet, formatDate, calculateAge }: any) {
           </div>
         </div>
       </div>
+      <div>
+        <button onClick={
+            () => router.back()
+          } className="flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline">
+            <FaArrowLeft /> Back
+        </button>
+      </div>
+      
     </div>
   );
 }
@@ -141,7 +163,7 @@ function PetCard({ pet, formatDate, calculateAge }: any) {
 
 
 function MedicineInfo({ med, formatDate }: any) {
-  const typeIcon = med.medicineName.toLowerCase().includes("injection")
+  const typeIcon = med.Medicine.type.toLowerCase().includes("injection")
     ? "💉"
     : "💊";
 
@@ -150,15 +172,15 @@ function MedicineInfo({ med, formatDate }: any) {
       <div className="flex items-center gap-3 text-blue-600">
         <span className="text-xl">{typeIcon}</span>
         <div>
-          <div className="font-medium">{med.medicineName}</div>
+          <div className="font-medium">{med.Medicine.name}</div>
           <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">
-            {med.dosage}
+            {med.Medicine.dose}
           </span>
         </div>
       </div>
       <div className="text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-0 text-right space-y-1">
         <div>📅 {formatDate(med.dateGiven)}</div>
-        {med.nextDoseDue && (
+        {med.nextDoseDue && med.isDoseDate && (
           <div>⏭ Next: {formatDate(med.nextDoseDue)}</div>
         )}
         {med.notes && <div className="italic">“{med.notes}”</div>}
@@ -177,7 +199,7 @@ type MedicineForm = {
     dose: string | null; 
   };
   dateGiven: string;
-  nextDoseDue: string ;  
+  nextDoseDue: string | null ;  
   notes: string;
 };
 
@@ -191,7 +213,7 @@ function AddMedicineModal({ onClose, onSave, petId }: any) {
       dose : null 
     },
     dateGiven: "",
-    nextDoseDue: "",
+    nextDoseDue: null,
     notes: "",
   });
   const [ medicineSuggestions, setMedicineSuggestions ] = useState<Medicine[]>([])
@@ -217,25 +239,13 @@ function AddMedicineModal({ onClose, onSave, petId }: any) {
     e.preventDefault();
     try{
 
-      const newMed = {
-        id: Date.now(),
-        petId: form.petId,
-        medicineName: form.medicine.medicineName,
-        medicineId: form.medicine.medicineId,
-        type: form.medicine.type,
-        dose: form.medicine.dose,
-        dateGiven: form.dateGiven,
-        nextDoseDue: form.nextDoseDue,
-        notes: form.notes,
-      };
-
       const data = {
         petId :        form.petId,
         medicineId :   form.medicine.medicineId,
-        dosage :      form.medicine.dose,
         dateGiven :   form.dateGiven,
-        nextDoseDue : form.nextDoseDue,
+        nextDoseDue: form.nextDoseDue,
         notes    :    form.notes,
+        isDoseDate : form.medicine.type === "INJECTION" ? true : false
       }
 
       const res = await fetch("/api/medicine",{
@@ -245,15 +255,37 @@ function AddMedicineModal({ onClose, onSave, petId }: any) {
         },
         body: JSON.stringify(data) 
       })
-      if (!res.ok) throw new Error("Failed to save medicine");
 
-      onSave(newMed);
+
+      const json = await res.json()
+
+      if (!res.ok) {
+        console.error("Error saving medicine:",json.error);
+        return;
+      }
+
+      onSave(json.res);
     }catch(err){
-
+      console.error(err);
     }
     
 
   }
+
+  function formatDateForInput(date: Date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  function getFutureDate({ days = 0, months = 0 }: { days?: number; months?: number }) {
+    const date = new Date();
+    date.setMonth(date.getMonth() + months);
+    date.setDate(date.getDate() + days);
+    return date;
+  }
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 text-gray-600 dark:text-gray-400">
@@ -331,13 +363,36 @@ function AddMedicineModal({ onClose, onSave, petId }: any) {
         {form.medicine.type === "INJECTION" && 
           <div>
             <label className="block text-sm font-medium">Next Dose Due</label>
-            <input
-              type="date"
-              value={form.nextDoseDue}
-              onChange={(e) => setForm({ ...form, nextDoseDue: e.target.value })}
-              className="w-full p-2 border rounded-lg dark:bg-[#2A2A2A]"
-            />
+            
+            <div className="flex gap-2">
+              <select
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === "") {
+                    setForm((prev) => ({ ...prev, nextDoseDue: null }));
+                  } else {
+                    setForm((prev) => ({ ...prev, nextDoseDue: value }));
+                  }
+                }}
+                className="p-2 border rounded-lg dark:bg-[#2A2A2A]"
+                defaultValue=""
+              >
+                <option value="">Select preset</option>
+                <option value={formatDateForInput(getFutureDate({ days: 15 }))}>+15 days</option>
+                <option value={formatDateForInput(getFutureDate({ months: 1 }))}>+1 month</option>
+                <option value={formatDateForInput(getFutureDate({ months: 2 }))}>+2 months</option>
+                <option value={formatDateForInput(getFutureDate({ months: 3 }))}>+3 months</option>
+              </select>
+
+              <input
+                type="date"
+                value={form.nextDoseDue ?? ""}
+                onChange={(e) => setForm({ ...form, nextDoseDue: e.target.value })}
+                className="w-full p-2 border rounded-lg dark:bg-[#2A2A2A]"
+              />
+            </div>
           </div>
+
         }
 
         <textarea

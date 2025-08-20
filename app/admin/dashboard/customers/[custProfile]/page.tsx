@@ -13,7 +13,7 @@ type Pet = {
   species: string;
   breed?: string;
   gender?: string;
-  dob?: string;
+  dob: string;
 };
 
 
@@ -330,10 +330,12 @@ type PetInfoProps = {
   species: string;
   breed?: string;
   gender?: string;
-  dob?: string;
+  dob: string;
 };
 
 function PetInfo({ userId , id ,name, species, breed, gender, dob }: PetInfoProps) {
+  const DOB = new Date(dob).toLocaleDateString("en-GB")
+
   return (
     <Link href={`/admin/dashboard/customers/${userId}/${id}`}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2A2A2A] transition-colors mb-2">
@@ -349,7 +351,7 @@ function PetInfo({ userId , id ,name, species, breed, gender, dob }: PetInfoProp
           </div>
         </div>
         <div className="text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-0">
-          {gender} {dob ? `• DOB: ${dob}` : ""}
+          {gender} {dob ? `• DOB: ${DOB}` : ""}
         </div>
       </div>
     </Link>

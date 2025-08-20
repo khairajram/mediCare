@@ -20,6 +20,7 @@ export async function GET(req : Request){
 
     const res = await prisma.medicineRecord.findMany({
       where : {
+        isDoseDate : true,
         OR : [
           { nextDoseDue : { lte : today } },
           { nextDoseDue : { gte : today , lte : daysLater(ReqDays) } }
@@ -31,6 +32,7 @@ export async function GET(req : Request){
             user : true,
           },
         },
+        Medicine : true
       },
       orderBy: {
         nextDoseDue: "asc", 
@@ -39,7 +41,7 @@ export async function GET(req : Request){
 
     const medicines = res.map(m => ({
       id: m.id,
-      medicineName: m.medicineName,
+      medicineName: m.Medicine.name,
       dateGiven: m.dateGiven,
       dueDate: m.nextDoseDue,
       pet_id: m.pet?.id,
