@@ -134,3 +134,37 @@ export async function GET(req : Request){
   }
 }
 
+export async function PUT(req : Request){
+  try{
+
+    
+
+    
+    const res = await prisma.user.deleteMany({})
+
+
+
+    return new Response(JSON.stringify({
+      message: "all deleted",
+      res
+    }), {
+      status: 201,
+      headers: { "Content-Type": "application/json" },
+    });
+
+
+  }catch(err : any){
+    console.error("GET pets error:", err);
+
+    return new Response(JSON.stringify({
+      message: "Internal Server Error",
+      error: err.message,
+    }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
+
+
+
