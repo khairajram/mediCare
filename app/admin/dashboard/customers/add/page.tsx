@@ -4,12 +4,12 @@ export const dynamic = "force-dynamic";
 
 import { useData } from "@/app/context/adminDataStore";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function AddCustomerPage() {
-  const searchParams = useSearchParams();
-  const phoneFromQuery = searchParams.get("phone") || "";
+  // const searchParams = useSearchParams();
+  const phoneFromQuery =  "";
 
   const [name, setName] = useState("");
   const [phoneNo, setPhoneNo] = useState("");
