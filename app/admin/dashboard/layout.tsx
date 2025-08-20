@@ -11,17 +11,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider attribute="class" enableSystem defaultTheme="system"  >
-            <Header/>
-            <DataProvider>
-              <div className="pt-16 flex h-[calc(100vh-64px)]">
-                <SideBarAdmin/>
-                <main className="bg-gray-50 dark:bg-[#141414]  md:pl-52 pl-0 w-full  h-[calc(100vh-64px)] min-w-[450px]">
-                  {children}
-                </main>
-              </div>
-          </DataProvider>
-        </ThemeProvider>        
+        <DataProvider>
+          <div className="pt-16 flex h-[calc(100vh-64px)]">
+            <SideBarAdmin/>
+            <main className="bg-gray-50 dark:bg-[#141414]  md:pl-52 pl-0 w-full  h-[calc(100vh-64px)] min-w-[450px]">
+              {children}
+            </main>
+          </div>
+      </DataProvider>        
       </body>
     </html>
   );

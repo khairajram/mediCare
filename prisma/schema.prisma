@@ -19,6 +19,16 @@ model User {
 }
 
 
+model Admin {
+  id  String @id @default(uuid())
+  name String
+  phoneNo String @unique
+  email String
+  password String
+  createdAt  DateTime @default(now())
+}
+
+
 model Medicine {
   id                 String    @id @default(uuid())
   name               String
