@@ -20,6 +20,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.12",
+    "jose": "^6.0.13",
     "jsonwebtoken": "^9.0.2",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.540.0",

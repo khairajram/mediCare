@@ -31,7 +31,7 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" enableSystem defaultTheme="system"  >
           <Header/>
-          <main className="bg-gray-50 dark:bg-[#141414]">
+          <main className="bg-gray-500 dark:bg-[#141414]">
               {children}
             </main>
         </ThemeProvider>

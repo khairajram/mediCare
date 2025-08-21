@@ -13,6 +13,7 @@ model User {
   name String
   phoneNo      String   @unique
   email      String?    
+  password      String    
   createdAt  DateTime @default(now())
   address    String? @default("Unknown")
   pets       Pet[]

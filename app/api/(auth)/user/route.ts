@@ -3,6 +3,7 @@ import { z } from "zod";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import Twilio from "twilio";
+import bcrypt from "bcryptjs";
 
 const client = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 const prisma = new PrismaClient();
@@ -68,11 +69,12 @@ export async function POST(req: Request) {
       });
     }
 
-    const response = await prisma.user.create({
-      data: { name, phoneNo, address,email },
-    });
+    const hashedPassword = await bcrypt.hash(phoneNo, 10);
 
-    // ✅ Pass user info into sendMail
+    const response = await prisma.user.create({
+      data: { name, phoneNo, address, email, password : hashedPassword },
+    });
+ 
     await sendMail(name, phoneNo, address,email);
 
     return new Response(JSON.stringify({

@@ -14,6 +14,7 @@ export default function AddCustomerPage() {
   const [name, setName] = useState("");
   const [phoneNo, setPhoneNo] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -40,7 +41,7 @@ export default function AddCustomerPage() {
       const res = await fetch("/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phoneNo, address,email }),
+        body: JSON.stringify({ name, phoneNo, address,email,password }),
       });
 
       if (res.status === 409) {
@@ -53,6 +54,7 @@ export default function AddCustomerPage() {
           setPhoneNo("");
           setAddress("");
           setEmail("");
+          setPassword("");
           refreshUsers();
         } else {
           setMessage(`❌ ${data.message || "Something went wrong"}`);
@@ -116,7 +118,7 @@ export default function AddCustomerPage() {
               aria-label="Phone Number"
               className="border border-gray-300 rounded px-3 py-2 w-full"
               value={phoneNo}
-              onChange={(e) => setPhoneNo(e.target.value)}
+              onChange={(e) => { setPhoneNo(e.target.value); setPassword(e.target.value); }}
               disabled={loading}
               required
             />
