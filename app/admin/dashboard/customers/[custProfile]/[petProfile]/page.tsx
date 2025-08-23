@@ -39,7 +39,7 @@ export default function PetDetailsPage() {
     async function fetchData() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/medicine?id=${petId}`,{
+        const res = await fetch(`/api/medicine/${petId}`,{
           method : "GET"
         });
         if (!res.ok) throw new Error("Failed to load pet data");
@@ -163,27 +163,26 @@ function PetCard({ pet, formatDate, calculateAge }: any) {
 
 
 function MedicineInfo({ med, formatDate }: any) {
-  const typeIcon = med.Medicine.type.toLowerCase().includes("injection")
-    ? "💉"
-    : "💊";
+    const type = med?.Medicine?.type || "";
+    const typeIcon = type.toLowerCase().includes("injection") ? "💉" : "💊";
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-all bg-white dark:bg-[#2A2A2A]">
       <div className="flex items-center gap-3 text-blue-600">
         <span className="text-xl">{typeIcon}</span>
         <div>
-          <div className="font-medium">{med.Medicine.name}</div>
+          <div className="font-medium">{med?.Medicine?.name}</div>
           <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">
-            {med.Medicine.dose}
+            {med?.Medicine?.dose}
           </span>
         </div>
       </div>
       <div className="text-sm text-gray-600 dark:text-gray-400 mt-2 sm:mt-0 text-right space-y-1">
-        <div>📅 {formatDate(med.dateGiven)}</div>
-        {med.nextDoseDue && med.isDoseDate && (
-          <div>⏭ Next: {formatDate(med.nextDoseDue)}</div>
+        <div>📅 {formatDate(med?.dateGiven)}</div>
+        {med.nextDoseDue && med?.isDoseDate && (
+          <div>⏭ Next: {formatDate(med?.nextDoseDue)}</div>
         )}
-        {med.notes && <div className="italic">“{med.notes}”</div>}
+        {med.notes && <div className="italic">“{med?.notes}”</div>}
       </div>
     </div>
   );

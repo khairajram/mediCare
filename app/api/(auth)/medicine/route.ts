@@ -76,35 +76,33 @@ export async function GET(req : Request){
   try{
 
     const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
+    const days = searchParams.get("id");
 
-    if (!id) {
-      return new Response(JSON.stringify({ message: "ID query param is required" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    // if (!id) {
+    //   return new Response(JSON.stringify({ message: "ID query param is required" }), {
+    //     status: 400,
+    //     headers: { "Content-Type": "application/json" },
+    //   });
+    // }
 
     
-    const pet = await prisma.pet.findUnique({
-      where : {
-        id : id
-      },
+    const medicines = await prisma.medicineRecord.findMany({
       include : {
-        medicines : {
-          include : {
-            Medicine : true
+        pet : {
+          include : { 
+            user : true
           }
-        }
+        },
+        Medicine : true
       }
     })
 
-    if (pet?.medicines.length === 0) {
+    if (medicines.length === 0) {
       console.log("No medicines found");
       
       return new Response(JSON.stringify({
         message: "No medicines found",
-        pet
+        medicines
       }), {
         status: 201,
         headers: { "Content-Type": "application/json" },
@@ -114,7 +112,7 @@ export async function GET(req : Request){
 
     return new Response(JSON.stringify({
       message: "medicines given",
-      pet
+      medicines
     }), {
       status: 201,
       headers: { "Content-Type": "application/json" },
@@ -134,37 +132,6 @@ export async function GET(req : Request){
   }
 }
 
-// export async function PUT(req : Request){
-//   try{
-
-    
-
-    
-//     const res = await prisma.user.deleteMany({})
-
-
-
-//     return new Response(JSON.stringify({
-//       message: "all deleted",
-//       res
-//     }), {
-//       status: 201,
-//       headers: { "Content-Type": "application/json" },
-//     });
-
-
-//   }catch(err : any){
-//     console.error("GET pets error:", err);
-
-//     return new Response(JSON.stringify({
-//       message: "Internal Server Error",
-//       error: err.message,
-//     }), {
-//       status: 500,
-//       headers: { "Content-Type": "application/json" },
-//     });
-//   }
-// }
 
 
 

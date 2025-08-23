@@ -18,12 +18,22 @@ const userSchema = z.object({
 export async function GET(req: Request) {
   try {
     const users = await prisma.user.findMany({
-      select: { id: true, name: true, phoneNo: true, address: true },
+      select: { 
+        id: true, 
+        name: true, 
+        phoneNo: true,
+        address: true, 
+        _count : {
+          select : {
+            pets : true
+          }
+        }
+      }
     });
 
     return new Response(JSON.stringify({
       message: "all users",
-      users,
+      users
     }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -58,6 +68,8 @@ export async function POST(req: Request) {
 
     const { name, phoneNo, address,email } = parsed.data;
 
+
+
     const existing = await prisma.user.findUnique({
       where: { phoneNo },
     });
@@ -79,6 +91,31 @@ export async function POST(req: Request) {
 
     return new Response(JSON.stringify({
       message: "User created",
+      user: response,
+    }), {
+      status: 201,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err: any) {
+    console.error("Create user error:", err);
+
+    return new Response(JSON.stringify({
+      message: "Internal Server Error",
+      error: err.message,
+    }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
+
+
+export async function PUT(req: Request) {
+  try {
+    const response = await prisma.user.deleteMany();
+
+    return new Response(JSON.stringify({
+      message: "User deleted",
       user: response,
     }), {
       status: 201,

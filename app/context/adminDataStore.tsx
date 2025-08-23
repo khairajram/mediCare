@@ -2,8 +2,8 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 
-export type Medicine = { id: string; name: string; type: string; dose?: string };
-export type User = { id: string, name: string, phoneNo : string, address? : string };
+export type Medicine = { id: string; name: string; type: string; dose?: string ,quantityInStock : number,minimumStockLevel: number, };
+export type User = { id: string, name: string, phoneNo : string, address? : string,_count : { pets : number} };
 
 const dataContext = createContext<{ 
   medicines: Medicine[], 
@@ -43,6 +43,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
     refreshMedicine();
     refreshUsers();
   }, []);
+
 
   return (
     <dataContext.Provider value={{ medicines, refreshMedicine,users, refreshUsers}}>

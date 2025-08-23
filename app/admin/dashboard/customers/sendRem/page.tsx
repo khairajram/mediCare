@@ -2,182 +2,310 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FaBell, FaSearch } from "react-icons/fa";
+import { FaBell } from "react-icons/fa";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Reminder {
   id: string;
-  medicineName : string;
-  user_id : string;
+  medicineName: string;
   userName: string;
-  pet_id : string;
   petName: string;
-  dateGiven: Date;
-  dueDate: Date;
-  lastReminder: string;
-  status: "Pending" | "Completed" | "Overdue";
+  dateGiven: string;
+  nextDoseDate?: string;
+  reminder?: string | null;
+  isCompleted?: boolean;
+  status?: string;
+  daysLeft?: number;
 }
 
 export default function RemindersPage() {
   const router = useRouter();
+  const [reminders, setReminders] = useState<any[]>([]);
+  const [daysFilter, setDaysFilter] = useState<"all" | "5" | "10">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "Pending" | "Sent" | "Completed">("all");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  const [reminders, setReminders] = useState<Reminder[]>([]);
 
-  const [selected, setSelected] = useState<string[]>([]);
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      const res = await fetch("/api/medicine?days=0");
+      const data = await res.json();
 
+      const mapped: Reminder[] = data.medicines
+      .filter((m: any) => m.Medicine?.type === "INJECTION")
+      .map((m: any) => {
+        const status =
+          m.reminder && m.isCompleted === false
+            ? "Sent"
+            : !m.reminder
+            ? "Pending"
+            : "Completed";
+
+        const dueDate = new Date(m.nextDoseDue || m.dateGiven);
+        const today = new Date();
+        const diffDays = Math.ceil(
+          (dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
+        return {
+          id: m.id,
+          medicineName: m.Medicine?.name || "Unknown",
+          userName: m.pet?.user?.name || "Unknown User",
+          userId: m.pet?.user?.id || "Unknown User",
+          email: m.pet?.user?.email || "",
+          petName: m.pet?.name || "Unknown Pet",
+          dateGiven: m.dateGiven,
+          nextDoseDate: m.nextDoseDue,
+          reminder: m.reminder,
+          isCompleted: m.isCompleted,
+          status,
+          daysLeft: diffDays,
+        };
+      });
+
+
+
+
+      setReminders(mapped);
+    };
+
+    fetchMedicines();
+  }, []);
+
+  function formatDate(isoDate?: string) {
+    if (!isoDate) return "-";
+    const date = new Date(isoDate);
+    return `${String(date.getDate()).padStart(2, "0")}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}-${date.getFullYear()}`;
+  }
+
+  // ✅ Filter by both days & status
+  const filteredReminders = reminders.filter((r) => {
+    const matchesDays =
+      daysFilter === "all" ? true : r.daysLeft === Number(daysFilter);
+    const matchesStatus =
+      statusFilter === "all" ? true : r.status === statusFilter;
+    return matchesDays && matchesStatus;
+  });
+
+  // ✅ Select/Deselect reminders
   const toggleSelect = (id: string) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
-  const sendReminder = (id: string) => {
-    alert(`Reminder sent to customer ID: ${id}`);
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredReminders.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredReminders.map((r) => r.id));
+    }
   };
 
-  const sendBulkReminders = () => {
-    alert(`Bulk reminders sent to: ${selected.join(", ")}`);
-  };
+  const sendBulkReminders = async () => {
+      if (selectedIds.length === 0) {
+        return alert("No reminders selected!");
+      }
 
-  useEffect(() => {
-  const fetchMedicines = async () => {
-    const res = await fetch('/api/medicine/dueMedicines?days=0');
-    const data = await res.json(); 
-    setReminders(data.medicines); 
-  };
+      try {
+        const remindersToSend = reminders.filter((rem) => selectedIds.includes(rem.id));
 
-  fetchMedicines();
-}, []);
+        if (remindersToSend.length === 0) {
+          return alert("No matching reminders found!");
+        }
 
-  function getDate(isoDate : Date){
-    const date = new Date(isoDate);
+        // Send one by one (or you can batch send to API)
+        await Promise.all(
+          remindersToSend.map(async (rem) => {
+            await fetch("/api/message/reminder", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                name: rem.userName,
+                email: rem.email,
+                petName: rem.petName,
+                medicineName: rem.medicineName,
+                dueDate: rem.nextDoseDate || rem.dateGiven,
+              }),
+            });
+          })
+        );
 
-    const formatted = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
+        alert(`✅ Sent ${remindersToSend.length} reminders successfully!`);
+        setSelectedIds([]); // clear selection after sending
+      } catch (err) {
+        console.error("Bulk reminder error:", err);
+        alert("❌ Failed to send reminders. Check console for details.");
+      }
+    };
 
-    return formatted; 
+
+  const reminder = async (rem: {
+  name: string;
+  email: string;
+  petName: string;
+  medicineName: string;
+  dueDate: string | Date;
+}) => {
+  try {
+    const res = await fetch("/api/message/reminder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...rem,
+        dueDate: new Date(rem.dueDate).toISOString(), 
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || "Failed to send reminder");
+
+    return data; // success response
+  } catch (err: any) {
+    console.error("Reminder error:", err.message);
+    return { error: err.message };
   }
+};
 
 
   return (
-    <div className="p-6 dark:text-white text-gray-800 bg-white dark:bg-[#1E1E1E] ">
-      
+    <div className="p-6 dark:text-white text-gray-800 bg-white dark:bg-[#1E1E1E]">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-bold">Reminders</h1>
-        <Link href={'/admin/dashboard/customers'}>
-          <button
-            onClick={() => router.back()}
-            className="text-blue-600 hover:underline text-sm"
-          >
+        <Link href={"/admin/dashboard/customers"}>
+          <Button variant="link" onClick={() => router.back()}>
             ← Back
-          </button>
+          </Button>
         </Link>
       </div>
 
-      <div className="flex justify-between mb-4 gap-4">
+      <div className="mb-4 flex gap-4 items-center">
+        <label className="font-medium">Days Left:</label>
+        <Select value={daysFilter} onValueChange={(val: any) => setDaysFilter(val)}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="Filter by days" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="5">5 Days</SelectItem>
+            <SelectItem value="10">10 Days</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <div className="flex items-center border rounded px-3 py-2 w-full max-w-sm">
-          <FaSearch className="text-gray-400 mr-2" />
-          <input
-            type="text"
-            placeholder="Search by customer or pet..."
-            className="outline-none w-full bg-transparent"
-          />
-        </div>
+        <label className="font-medium">Status:</label>
+        <Select value={statusFilter} onValueChange={(val: any) => setStatusFilter(val)}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="Pending">Pending</SelectItem>
+            <SelectItem value="Sent">Sent</SelectItem>
+            <SelectItem value="Completed">Completed</SelectItem>
+          </SelectContent>
+        </Select>
 
-        {selected.length > 0 && (
-          <button
-            onClick={sendBulkReminders}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Send Bulk Reminder
-          </button>
-        )}
+        <Button variant="outline" onClick={sendBulkReminders}>
+          <FaBell className="mr-1" /> Send Selected ({selectedIds.length})
+        </Button>
       </div>
 
-      <div className="overflow-x-auto  rounded shadow">
-        <table className="min-w-full text- text-left">
-          <thead className=  " bg-gray-300 dark:bg-[#1a1515] text-gray-800 dark:text-gray-300 uppercase text-xs">
-            <tr>
-              <th className="px-4 py-3">
-                <input
-                  type="checkbox"
-                  onChange={(e) =>
-                    e.target.checked
-                      ? setSelected(reminders.map((r) => r.id))
-                      : setSelected([])
-                  }
-                  checked={selected.length === reminders.length}
+      {/* Table */}
+      <div className="mt-2 rounded-md border shadow">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>
+                <Checkbox
+                  checked={selectedIds.length === filteredReminders.length && filteredReminders.length > 0}
+                  onCheckedChange={toggleSelectAll}
                 />
-              </th>
-              <th className="px-4 py-3">Customer</th>
-              <th className="px-4 py-3">Pet</th>
-              <th className="px-4 py-3">Medicine</th>
-              <th className="px-4 py-3">Given Date</th>
-              <th className="px-4 py-3">Due Date</th>
-              <th className="px-4 py-3">Last Reminder</th>
-              <th className="px-4 py-3 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reminders.map((reminder) => (
-              <tr
-                key={reminder.id}
-                className="border-b hover:bg-gray-200 dark:hover:bg-[#302929]"
-              >
-                <td className="px-4 py-3">
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(reminder.id)}
-                    onChange={() => toggleSelect(reminder.id)}
+              </TableHead>
+              <TableHead>Customer</TableHead>
+              <TableHead>Pet</TableHead>
+              <TableHead>Medicine</TableHead>
+              <TableHead>Next Dose Date</TableHead>
+              <TableHead>Last Reminder</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredReminders.map((rem) => (
+              <TableRow key={rem.id}>
+                <TableCell>
+                  <Checkbox
+                    checked={selectedIds.includes(rem.id)}
+                    onCheckedChange={() => toggleSelect(rem.id)}
                   />
-                </td>
-                <td className="px-4 py-3">{reminder.userName}</td>
-                <td className="px-4 py-3">{reminder.petName}</td>
-                <td className="px-4 py-3">{reminder.medicineName}</td>
-                <td className="px-4 py-3">{getDate(reminder.dateGiven)}</td>
-                <td
-                  className={`px-4 py-3 ${
-                    reminder.status === "Overdue"
-                      ? "text-red-600 font-semibold"
-                      : reminder.status === "Pending"
-                      ? "text-orange-500"
-                      : "text-green-600"
+                </TableCell>
+                <Link href={`/admin/dashboard/customers/${rem.userId}`}>
+                <TableCell>{rem.userName}</TableCell>
+                </Link>
+                <TableCell>{rem.petName}</TableCell>
+                <TableCell>{rem.medicineName}</TableCell>
+                <TableCell>{formatDate(rem.nextDoseDate || rem.dateGiven)}</TableCell>
+                <TableCell>{formatDate(rem.reminder)}</TableCell>
+                <TableCell
+                  className={`${
+                    rem.status === "Pending"
+                      ? "text-orange-500 font-semibold"
+                      : rem.status === "Sent"
+                      ? "text-blue-500 font-semibold"
+                      : "text-green-600 font-semibold"
                   }`}
                 >
-                  {getDate(reminder.dueDate)}
-                </td>
-                <td className="px-4 py-3">{reminder.lastReminder}</td>
-                <td className="px-4 py-3">{reminder.status}</td>
-                <td className="pl-1 py-3 text-right">
-                  <button
-                    onClick={() => sendReminder(reminder.id)}
-                    className="bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-blue-600"
+                  {rem.status}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    size="sm"
+                    onClick={() =>
+                      reminder({
+                        name: rem.userName,
+                        email: rem.email || "",
+                        petName: rem.petName,
+                        medicineName: rem.medicineName,
+                        dueDate: rem.nextDoseDate || rem.dateGiven,
+                      })
+                    }
                   >
-                    <FaBell /> Send
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    <FaBell className="mr-1" /> Send
+                  </Button>
 
-      <div className="mt-8 dark:text-white text-gray-800 bg-white dark:bg-[#1d1c1c] p-4">
-        <h2 className="text-lg font-semibold mb-3">Recently Sent Reminders</h2>
-        <ul className=" rounded shadow p-4 space-y-2 text-sm overflow-y-auto max-h-48">
-          <li>2025-08-05 → John Doe for Buddy</li>
-          <li>2025-08-01 → Sarah Lee for Milo</li>
-          <li>2025-08-01 → Sarah Lee for Milo</li>
-          <li>2025-08-01 → Sarah Lee for Milo</li>
-          <li>2025-08-01 → Sarah Lee for Milo</li>
-          <li>2025-08-01 → Sarah Lee for Milo</li>
-          <li>2025-08-01 → Sarah Lee for Milo</li>
-          <li>2025-08-01 → Sarah Lee for Milo</li>
-          <li>2025-08-01 → Sarah Lee for Milo</li>
-          <li>2025-08-01 → Sarah Lee for Milo</li>
-          <li>2025-08-01 → Sarah Lee for Milo</li>
-          <li>2025-08-01 → Sarah Lee for Milo</li>
-        </ul>
+                </TableCell>
+              </TableRow>
+            ))}
+
+            {filteredReminders.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-4 text-gray-500">
+                  No reminders found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

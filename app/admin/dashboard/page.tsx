@@ -14,46 +14,55 @@ import { FaPills, FaExclamationTriangle } from "react-icons/fa";
 import { MdPets } from "react-icons/md";
 import { HiUsers } from "react-icons/hi";
 import { useData } from "@/app/context/adminDataStore";
+import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
-export default async function AdminDashboardHome() {
+export default function AdminDashboardHome() {
 
-  const { medicines } = useData();
+  const { medicines,users } = useData();
+  const lowStock = medicines.filter(m => m.quantityInStock< m.minimumStockLevel)
+  const totalPets = (users: { _count: { pets: number } }[]) => {
+    return users.reduce((sum, user) => sum + user._count.pets, 0);
+  };
+
+  const pets = totalPets(users);
+
+
+
 
   return (
     <div className="p-6 max-w-7xl mx-auto min-h-screen dark:text-white text-gray-800 bg-gray-100 dark:bg-[#1E1E1E] space-y-10">
 
-      {/* Stats Section */}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           icon={<FaPills size={22} />}
           label="Total Medicines"
-          value="254"
+          value={String(medicines.length)}
           iconBg="bg-blue-100 text-blue-600"
         />
         <StatCard
           icon={<FaExclamationTriangle size={22} />}
           label="Low Stock Alerts"
-          value="12"
+          value={String(lowStock.length)}
           iconBg="bg-red-100 text-red-600"
         />
         <StatCard
           icon={<MdPets size={22} />}
           label="Pet Health Records"
-          value="87"
+          value={String(pets)}
           iconBg="bg-green-100 text-green-600"
         />
         <StatCard
           icon={<HiUsers size={22} />}
           label="Registered Users"
-          value="42"
+          value={String(users.length)}
           iconBg="bg-purple-100 text-purple-600"
         />
       </div>
 
-      {/* Middle Section: Low Stock + Quick Actions side by side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        {/* Low Stock Medicines */}
         <Card className="overflow-hidden">
           <CardHeader className="bg-gray-50 dark:bg-gray-800 border-b">
             <CardTitle className="text-lg">⚠️ Low Stock Medicines</CardTitle>
@@ -69,18 +78,22 @@ export default async function AdminDashboardHome() {
                 </TableRow>
               </TableHeader>
               <TableBody>
+                {lowStock.length > 0 ? (
+                lowStock.map((med) => (
+                  <TableRow key={med.id}>
+                    <TableCell>{med.name}</TableCell>
+                    <TableCell>{med.type}</TableCell>
+                    <TableCell>{med.quantityInStock}</TableCell>
+                    <TableCell>{med.minimumStockLevel}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
-                  <TableCell>Paracetamol</TableCell>
-                  <TableCell>Tablet</TableCell>
-                  <TableCell>5</TableCell>
-                  <TableCell>20</TableCell>
+                  <TableCell colSpan={4} className="text-center text-gray-500 dark:text-gray-400 py-4">
+                    ✅ All medicines are in stock
+                  </TableCell>
                 </TableRow>
-                <TableRow>
-                  <TableCell>Amoxicillin</TableCell>
-                  <TableCell>Syrup</TableCell>
-                  <TableCell>2</TableCell>
-                  <TableCell>15</TableCell>
-                </TableRow>
+              )}
               </TableBody>
             </Table>
           </CardContent>
@@ -92,10 +105,17 @@ export default async function AdminDashboardHome() {
             <CardTitle className="text-lg">⚡ Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-3 p-6">
-            <Button className="flex-1 sm:flex-none">➕ Add Medicine</Button>
-            <Button variant="secondary" className="flex-1 sm:flex-none">📊 View Reports</Button>
-            <Button variant="outline" className="flex-1 sm:flex-none">🐾 Add Pet Record</Button>
-            <Button variant="outline" className="flex-1 sm:flex-none">👤 Manage Users</Button>
+
+            <Link href={'/admin/dashboard/medicine/list'}>
+              <Button className="flex-1 sm:flex-none">➕ Add Medicine</Button>
+            </Link>
+            <Link href={'/admin/dashboard/customers/add'}>
+              <Button variant="outline" className="flex-1 sm:flex-none">🐾 Add User Record</Button>
+            </Link>
+            <Link href={'/admin/dashboard/customers/all'}>
+              <Button variant="outline" className="flex-1 sm:flex-none">👤 Manage Users</Button>
+            </Link>            
+            
           </CardContent>
         </Card>
 

@@ -79,7 +79,7 @@ model MedicineRecord {
   isDoseDate   Boolean?  @default(false)
   nextDoseDue  DateTime? 
   reminder  DateTime? 
-  isCompleted  Boolean?
+  isCompleted  Boolean? @default(false)
   notes        String?
   createdAt    DateTime @default(now())
   pet          Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
