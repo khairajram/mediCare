@@ -43,6 +43,7 @@ export default function AdminLogin() {
       if (!res.ok) {
         setError(result.message || `Login failed : ${result.message}`);
       } else {        
+        window.location.reload();
         route.push('/home')
       }
     } catch (err) {

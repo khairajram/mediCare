@@ -35,8 +35,12 @@ model Medicine {
   name               String
   type               MedicineForm
   dose               String?
+  quantityInStock   Int   @default(0)
+  minimumStockLevel Int   @default(0)
   records            MedicineRecord[]
 }
+
+
 
 
 enum MedicineForm {
@@ -74,6 +78,8 @@ model MedicineRecord {
   dateGiven    DateTime
   isDoseDate   Boolean?  @default(false)
   nextDoseDue  DateTime? 
+  reminder  DateTime? 
+  isCompleted  Boolean?
   notes        String?
   createdAt    DateTime @default(now())
   pet          Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)

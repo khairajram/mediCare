@@ -43,8 +43,7 @@ export default function AdminLogin() {
       if (!res.ok) {
         setError(result.message || "Login failed");
       } else {
-        localStorage.setItem("adminToken", result.token);
-        
+        window.location.reload();
         route.push('/admin/dashboard')
       }
     } catch (err) {
