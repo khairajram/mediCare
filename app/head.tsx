@@ -17,6 +17,7 @@ export default function Head() {
       />
       <meta property="og:image" content="/social-preview.png" />
       <meta property="og:type" content="website" />
+      <meta name="google-site-verification" content="lFOsGpqJlRsKf0hp_tuINvSfaTnpxFFdKt5pVEKKUbs" />
 
 
       <script
