@@ -1,15 +1,30 @@
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, petName, medicineName, dueDate } = await req.json();
+    const { id,name, email, petName, medicineName, dueDate,type } = await req.json();
+    // const body = await req.json();
 
-    if (!name || !email || !petName || !medicineName || !dueDate) {
+    console.log(`id : ${id}\n name : ${name}\n email : ${email}\n petName : ${petName}\n medicineName : ${medicineName}\n type : ${type}\n`)
+
+    if (!name || !email || !petName || !medicineName || !dueDate || !id ) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
+    }
+
+    if(type === "INJECTION"){
+      const res = await prisma.medicineRecord.update({
+        where : {
+          id : id
+        },
+        data : {
+          reminder : new Date()
+        }
+      })
     }
 
     

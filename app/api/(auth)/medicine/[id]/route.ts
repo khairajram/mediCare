@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET(req : Request, { params }: { params: { id: string } }){
   try{
 
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return new Response(JSON.stringify({ message: "ID query param is required" }), {

@@ -104,7 +104,7 @@ export default function PetDetailsPage() {
           }      
           
           <button className="mt-3 text-gray-600 dark:text-gray-400" onClick={() => setOpenModal(true)}>
-            ➕ Add First Medicine
+            ➕ Add Medicine
           </button>
         </div>
       )}
@@ -302,7 +302,7 @@ function AddMedicineModal({ onClose, onSave, petId }: any) {
             value={form.medicine.medicineName}
             onChange={(e) => { 
               const value = e.target.value;
-              setForm(prev => ({...prev ,medicine : { ...prev.medicine, medicineName : value} }));
+              setForm(prev => ({...prev ,medicine : { ...prev.medicine, medicineName : value } }));
               mediSuggestions(value);
             }}
             className="w-full p-2 border rounded-lg dark:bg-[#2A2A2A]"

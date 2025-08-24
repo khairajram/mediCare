@@ -33,6 +33,15 @@ export async function POST(req : Request){
 
     const data = parsed.data;
 
+    const update = await prisma.medicineRecord.updateMany({
+      where : {
+        medicineId : data.medicineId
+      },
+      data : {
+        isCompleted : true
+      }
+    })
+
     const res = await prisma.medicineRecord.create({
       data : {
         petId :        data.petId,
@@ -43,6 +52,8 @@ export async function POST(req : Request){
         isDoseDate : data.isDoseDate
       }
     })
+
+    console.log(res)
 
 
 

@@ -48,6 +48,7 @@ export default function RemindersPage() {
       const res = await fetch("/api/medicine?days=0");
       const data = await res.json();
 
+
       const mapped: Reminder[] = data.medicines
       .filter((m: any) => m.Medicine?.type === "INJECTION")
       .map((m: any) => {
@@ -67,6 +68,8 @@ export default function RemindersPage() {
         return {
           id: m.id,
           medicineName: m.Medicine?.name || "Unknown",
+          type: m.Medicine?.type || "Unknown",
+          medicineId: m.Medicine?.id || "Unknown",
           userName: m.pet?.user?.name || "Unknown User",
           userId: m.pet?.user?.id || "Unknown User",
           email: m.pet?.user?.email || "",
@@ -97,7 +100,7 @@ export default function RemindersPage() {
     ).padStart(2, "0")}-${date.getFullYear()}`;
   }
 
-  // ✅ Filter by both days & status
+  
   const filteredReminders = reminders.filter((r) => {
     const matchesDays =
       daysFilter === "all" ? true : r.daysLeft === Number(daysFilter);
@@ -106,7 +109,7 @@ export default function RemindersPage() {
     return matchesDays && matchesStatus;
   });
 
-  // ✅ Select/Deselect reminders
+  
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -165,6 +168,8 @@ export default function RemindersPage() {
   petName: string;
   medicineName: string;
   dueDate: string | Date;
+  type : string
+  id : string
 }) => {
   try {
     const res = await fetch("/api/message/reminder", {
@@ -180,7 +185,7 @@ export default function RemindersPage() {
 
     if (!res.ok) throw new Error(data.error || "Failed to send reminder");
 
-    return data; // success response
+    return data;
   } catch (err: any) {
     console.error("Reminder error:", err.message);
     return { error: err.message };
@@ -287,6 +292,8 @@ export default function RemindersPage() {
                         petName: rem.petName,
                         medicineName: rem.medicineName,
                         dueDate: rem.nextDoseDate || rem.dateGiven,
+                        type : rem.type,
+                        id : rem.id
                       })
                     }
                   >
