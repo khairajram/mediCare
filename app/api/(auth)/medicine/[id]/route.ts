@@ -1,13 +1,16 @@
 import { prisma } from "@/lib/prisma";
 
-interface Params {
-  id: string;
+
+function extractIdFromReq(req: Request) {
+  const url = new URL(req.url);
+  const segments = url.pathname.split("/");
+  return segments[segments.length - 1];
 }
 
-export async function GET(req : Request,{ params }:  { params: Params }){
+export async function GET(req : Request){
   try{
 
-    const { id } = await params;
+    const id = extractIdFromReq(req)
 
     if (!id) {
       return new Response(JSON.stringify({ message: "ID query param is required" }), {

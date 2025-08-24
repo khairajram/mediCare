@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-  "devwm": "npx prisma migrate dev --name init && next dev --hostname 0.0.0.0",
+  "devwm": "npx prisma migrate dev --name init && run postbuild && next dev --hostname 0.0.0.0",
   "dev": "next dev --hostname 0.0.0.0",
   "build": "prisma generate && next build",
   "postbuild": "next-sitemap",
