@@ -31,7 +31,7 @@ export default function AdminDashboardHome() {
 
 
   return (
-    <div className="p-6 max-w-7xl  pl-16 mx-auto min-h-screen dark:text-white text-gray-800 bg-gray-100 dark:bg-[#1E1E1E] space-y-10">
+    <div className="p-6 max-w-7xl pl-0  md:pl-16 mx-auto min-h-screen dark:text-white text-gray-800 bg-gray-100 dark:bg-[#1E1E1E] space-y-10">
 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

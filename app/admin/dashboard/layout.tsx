@@ -20,7 +20,7 @@ export default function RootLayout({
         <DataProvider>
           <div className="pt-16 flex h-[calc(100vh-64px)]">
             <SideBarAdmin/>
-            <main className="bg-gray-50 dark:bg-[#141414] pl-14  sm:pl-52  w-full  h-[calc(100vh-64px)] min-w-[450px]">
+            <main className="bg-gray-50 dark:bg-[#141414] pl-0 m-4  md:pl-52  w-full  h-[calc(100vh-64px)] min-w-[450px]">
               {children}
             </main>
           </div>

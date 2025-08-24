@@ -49,3 +49,5 @@ next-env.d.ts
 *.jsx text eol=lf
 *.tsx text eol=lf
 
+
+.vercel
