@@ -22,8 +22,8 @@ export default function LandingPage() {
       </div>
 
 
-      <section className="w-full py-24 px-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white relative ">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
+      <section className="w-full py-32 px-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white relative ">
+        <div className="max-w-6xl mx-auto flex justify-center items-center">
           
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -44,28 +44,18 @@ export default function LandingPage() {
             <div className="flex gap-4 justify-center md:justify-start">
               <a
                 href="/login"
-                className="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-gray-100"
+                className="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 inline-flex items-center gap-1"
+                aria-label="Get started with Karni Medical App"
               >
                 Get Started
               </a>
+
               <a
                 href="/admin/login"
                 className="bg-indigo-800 px-6 py-3 rounded-xl font-semibold hover:bg-indigo-900"
               >
                 Admin login
               </a>
-            </div>
-          </motion.div>
-
-
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex justify-center md:justify-end"
-          >
-            <div className="w-64 h-96 bg-white rounded-3xl shadow-lg flex items-center justify-center text-gray-400">
-              App Mockup
             </div>
           </motion.div>
         </div>
@@ -93,7 +83,7 @@ export default function LandingPage() {
           {[
             {
               icon: (
-                <PawPrint className="w-12 h-12 text-blue-600 mb-4" />
+                <PawPrint className="w-12 h-12 text-blue-600 mb-4"  aria-label="Pet Profiles icon"/>
               ),
               title: "Pet Profiles",
               desc: "Create detailed profiles for each pet.",
@@ -185,26 +175,6 @@ export default function LandingPage() {
           ))}
         </div>
       </section>
-
-
-      <section
-        id="download"
-        className="w-full py-20 px-6 bg-gray-50 text-gray-800 text-center"
-      >
-        <h2 className="text-4xl font-bold mb-6">App Preview</h2>
-        <p className="mb-8">Here’s how MediCare looks on mobile.</p>
-        <div className="mx-auto w-64 h-128 bg-white rounded-3xl shadow-lg flex items-center justify-center text-gray-400">
-          App Screenshot Placeholder
-        </div>
-        <div className="flex gap-4 justify-center mt-8">
-          <a href="#" className="bg-black text-white px-6 py-3 rounded-xl">
-            App Store
-          </a>
-          <a href="#" className="bg-black text-white px-6 py-3 rounded-xl">
-            Google Play
-          </a>
-        </div>
-      </section>
       
 
       <section className="w-full py-20 px-6 bg-white text-gray-800">
@@ -215,7 +185,7 @@ export default function LandingPage() {
           {[
             {
               name: "Sarah & Bella 🐶",
-              text: "MediCare helps me stay on top of Bella’s medicine schedule. No more missed doses!",
+              text: "Karni Medical helps me stay on top of Bella’s medicine schedule. No more missed doses!",
             },
             {
               name: "Raj & Simba 🐱",
