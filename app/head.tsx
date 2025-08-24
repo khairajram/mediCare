@@ -10,7 +10,7 @@ export default function Head() {
       <meta name="robots" content="index, follow" />
 
 
-      <meta property="og:title" content="Karni Medical | Smart Pet Health App" />
+      <meta property="og:title" content="Karni Medical | Smart Pet Health App01" />
       <meta
         property="og:description"
         content="Track medicines, reminders, and pet health records for your pets in one simple app."
