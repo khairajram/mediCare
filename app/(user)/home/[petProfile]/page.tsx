@@ -44,8 +44,10 @@ export default function PetDetailsPage() {
         });
         if (!res.ok) throw new Error("Failed to load pet data");
         const data = await res.json();
+
+        const petData = data.medicines.length > 0 ? data.medicines[0].pet : null;
         setPet(data.pet);
-        setMedicines(data.pet.medicines);
+        setMedicines(data.medicines);
       } catch (err: any) {
         setError(err.message);
       } finally {

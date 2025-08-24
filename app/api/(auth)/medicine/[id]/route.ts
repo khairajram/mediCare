@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/prisma";
 
-export async function GET(req : Request,{ params }: { params: { id: string }; searchParams: URLSearchParams }){
+interface Params {
+  id: string;
+}
+
+export async function GET(req : Request,{ params }:  { params: Params }){
   try{
 
     const { id } = await params;
