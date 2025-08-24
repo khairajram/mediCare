@@ -17,6 +17,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Karni Medical | Smart Pet Health App",
   description: "Track pet medicines, set reminders, and manage pet health records with Karni Medical — simple, fast, and easy to use.",
+  robots: "index, follow",
+  other: {
+    "google-site-verification": "lFOsGpqJlRsKf0hp_tuINvSfaTnpxFFdKt5pVEKKUbs"
+  },
   openGraph: {
     title: "Karni Medical | Smart Pet Health App",
     description: "Track pet medicines, set reminders, and manage pet health records with Karni Medical.",
