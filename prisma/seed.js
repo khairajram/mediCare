@@ -8,15 +8,15 @@ async function main() {
 
   // 1. Check if Admin already exists
   const existingAdmin = await prisma.admin.findUnique({
-    where: { phoneNo: "9876543210" }
+    where: { phoneNo: "7665764122" }
   });
 
   if (!existingAdmin) {
     const adminPasswordHash = await bcrypt.hash("adminpassword123", 10);
     const admin = await prisma.admin.create({
       data: {
-        name: "Karni Medical Admin",
-        phoneNo: "9876543210",
+        name: "Birbal",
+        phoneNo: "7665764122",
         email: "shreekarnimedical01@gmail.com",
         password: adminPasswordHash,
       },
@@ -25,6 +25,7 @@ async function main() {
   } else {
     console.log("👤 Admin account already exists. Skipping.");
   }
+
 
   // 2. Seed Medicines only if the catalog is empty
   const medicineCount = await prisma.medicine.count();
