@@ -42,11 +42,12 @@ export default function AdminLogin() {
       const result = await res.json();
 
       if (!res.ok) {
-        setError(result.message || "Login failed");
+        setError(result.error ? `${result.message}: ${result.error}` : (result.message || "Login failed"));
       } else {
         window.location.reload();
         route.push('/admin/dashboard')
       }
+
     } catch (err) {
       setError(`Something went wrong ${err}`);
     } finally {
