@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Interview Preparation Documents
+/INTERVIEW_PREP.md
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
