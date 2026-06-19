@@ -1,6 +1,7 @@
 "use client"
 import Link from "next/link";
 import { FaBell, FaSearch } from "react-icons/fa";
+import { usePathname } from "next/navigation";
 
 import { ThemeToggle } from "@/app/theme-toggle";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -8,10 +9,15 @@ import UserMenu from "./userMenu";
 import { useEffect, useState } from "react";
 
 export default function Header() {
+  const pathname = usePathname();
   const [data,setData] = useState<any[]>([])
   
+  // Hide global header on landing page, login, signup, and admin login
+  const isLandingOrAuth = pathname === "/" || pathname === "/login" || pathname === "/signup" || pathname === "/admin/login";
 
   useEffect(() => {
+    if (isLandingOrAuth) return;
+
     const fetchData = async () => {
       try {
         const res = await fetch("/api/me");
@@ -28,11 +34,11 @@ export default function Header() {
     fetchData();
   }, []);
 
-   
+  if (isLandingOrAuth) return null;
 
 
   return (
-    <div className="min-w-full w-screen fixed h-16 flex items-center top-0 left-0 z-50 bg-white border-b-4 border-[#E0E0E0] dark:bg-[#121212] dark:border-gray-700">
+    <div className="min-w-full w-screen fixed h-16 flex items-center top-0 left-0 z-50 bg-white/75 dark:bg-[#0a0a0a]/75 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60 transition-colors shadow-sm">
       <div className="flex justify-between items-center w-full px-4 dark:text-white">
         
         
@@ -44,7 +50,7 @@ export default function Header() {
 
         
         <div className="flex items-center gap-4 text-xl text-black dark:text-white mr-4">
-          <div className="pb-16 pt-1 hover:text-blue-600 transition h-16 duration-200">
+          <div className="hover:text-blue-600 transition duration-200 flex items-center justify-center w-8 h-8">
             <ThemeToggle />
           </div>
 

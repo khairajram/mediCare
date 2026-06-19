@@ -58,7 +58,7 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" enableSystem defaultTheme="system"  >
           <Header/>
-          <main className="bg-gray-500 dark:bg-[#141414]">
+          <main className="bg-slate-50 dark:bg-[#070b13] min-h-screen transition-colors duration-300">
               {children}
             </main>
         </ThemeProvider>

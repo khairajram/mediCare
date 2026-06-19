@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
   console.log("🔑 Token:", token ? "Found" : "Missing");
 
   if (!token) {
-    if (pathname === "/admin/login" || pathname === "/login" || pathname === "/" ) {
+    if (pathname === "/admin/login" || pathname === "/login" || pathname === "/" || pathname === "/signup") {
       return NextResponse.next();
     }
     return NextResponse.redirect(new URL("/", request.url));
@@ -36,8 +36,8 @@ export async function middleware(request: NextRequest) {
 
   console.log("✅ Decoded token:", decoded);
 
-  // Already logged in → block access to login pages
-  if (pathname === "/admin/login" || pathname === "/login") {
+  // Already logged in → block access to login/signup pages
+  if (pathname === "/admin/login" || pathname === "/login" || pathname === "/signup") {
     if (decoded.role === "admin") {
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
@@ -68,5 +68,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/","/login", "/admin/login", "/admin/:path*", "/home/:path*"],
+  matcher: ["/","/login", "/signup", "/admin/login", "/admin/:path*", "/home/:path*"],
 };

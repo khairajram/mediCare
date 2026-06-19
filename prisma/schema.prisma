@@ -7,41 +7,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id         String   @id @default(uuid())
-  name String
-  phoneNo      String   @unique
-  email      String?    
-  password      String    
-  createdAt  DateTime @default(now())
-  address    String? @default("Unknown")
-  pets       Pet[]
+  id             String          @id @default(uuid())
+  name           String
+  phoneNo        String          @unique
+  email          String?
+  password       String
+  createdAt      DateTime        @default(now())
+  address        String?         @default("Unknown")
+  pets           Pet[]
+  orders         Order[]
+  appointments   Appointment[]
+  supportTickets SupportTicket[]
+  feedbacks      Feedback[]
 }
-
 
 model Admin {
-  id  String @id @default(uuid())
-  name String
-  phoneNo String @unique
-  email String
-  password String
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  name      String
+  phoneNo   String   @unique
+  email     String
+  password  String
+  createdAt DateTime @default(now())
 }
-
 
 model Medicine {
-  id                 String    @id @default(uuid())
-  name               String
-  type               MedicineForm
-  dose               String?
-  quantityInStock   Int   @default(0)
-  minimumStockLevel Int   @default(0)
-  records            MedicineRecord[]
+  id                String           @id @default(uuid())
+  name              String
+  type              MedicineForm
+  dose              String?
+  quantityInStock   Int              @default(0)
+  minimumStockLevel Int              @default(0)
+  price             Float            @default(150.0)
+  records           MedicineRecord[]
+  orderItems        OrderItem[]
 }
-
-
-
 
 enum MedicineForm {
   TABLET
@@ -52,36 +52,133 @@ enum MedicineForm {
   LIQUID
 }
 
-
-
-
-
-
-
 model Pet {
-  id         String            @id @default(uuid())
-  userId     String
-  name       String
-  species    String
-  breed      String?
-  gender     String?
-  dob        DateTime?
-  createdAt  DateTime          @default(now())
-  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  medicines  MedicineRecord[]
+  id           String           @id @default(uuid())
+  userId       String
+  name         String
+  species      String
+  breed        String?
+  gender       String?
+  dob          DateTime?
+  createdAt    DateTime         @default(now())
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  medicines    MedicineRecord[]
+  orders       Order[]
+  appointments Appointment[]
 }
 
 model MedicineRecord {
-  id           String   @id @default(uuid())
-  petId        String
-  medicineId   String
-  dateGiven    DateTime
-  isDoseDate   Boolean?  @default(false)
-  nextDoseDue  DateTime? 
-  reminder  DateTime? 
-  isCompleted  Boolean? @default(false)
-  notes        String?
-  createdAt    DateTime @default(now())
-  pet          Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
-  Medicine          Medicine      @relation(fields: [medicineId] , references: [id])
+  id          String    @id @default(uuid())
+  petId       String
+  medicineId  String
+  dateGiven   DateTime
+  isDoseDate  Boolean?  @default(false)
+  nextDoseDue DateTime?
+  reminder    DateTime?
+  isCompleted Boolean?  @default(false)
+  notes       String?
+  createdAt   DateTime  @default(now())
+  pet         Pet       @relation(fields: [petId], references: [id], onDelete: Cascade)
+  Medicine    Medicine  @relation(fields: [medicineId], references: [id])
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  petId           String?
+  pet             Pet?        @relation(fields: [petId], references: [id], onDelete: SetNull)
+  status          OrderStatus @default(PENDING)
+  deliveryAddress String
+  lat             Float?
+  lng             Float?
+  deliveryFee     Float       @default(50.0)
+  totalCost       Float
+  notes           String?
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id              String   @id @default(uuid())
+  orderId         String
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  medicineId      String
+  medicine        Medicine @relation(fields: [medicineId], references: [id])
+  quantity        Int
+  priceAtPurchase Float
+}
+
+enum OrderStatus {
+  PENDING
+  PACKING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Appointment {
+  id        String            @id @default(uuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  petId     String
+  pet       Pet               @relation(fields: [petId], references: [id], onDelete: Cascade)
+  type      AppointmentType
+  date      DateTime
+  status    AppointmentStatus @default(PENDING)
+  notes     String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+enum AppointmentType {
+  VET_DOCTOR
+  GROOMING_BATHING
+  GROOMING_HAIRCUT
+  GROOMING_FULL
+}
+
+enum AppointmentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+model SupportTicket {
+  id            String       @id @default(uuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject       String
+  message       String
+  status        TicketStatus @default(OPEN)
+  adminResponse String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  action      String
+  details     String
+  performedBy String
+  createdAt   DateTime @default(now())
 }

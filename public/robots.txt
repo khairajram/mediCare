@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://karnimedical.khairaj.tech
+
+# Sitemaps
+Sitemap: https://karnimedical.khairaj.tech/sitemap.xml

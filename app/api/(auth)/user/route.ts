@@ -13,6 +13,7 @@ const userSchema = z.object({
   phoneNo: z.string().regex(/^\d{10}$/),
   address: z.string(),
   email: z.string(),
+  password: z.string().min(6).optional(),
 });
 
 export async function GET(req: Request) {
@@ -66,9 +67,7 @@ export async function POST(req: Request) {
       });
     }
 
-    const { name, phoneNo, address,email } = parsed.data;
-
-
+    const { name, phoneNo, address, email, password } = parsed.data;
 
     const existing = await prisma.user.findUnique({
       where: { phoneNo },
@@ -81,7 +80,8 @@ export async function POST(req: Request) {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(phoneNo, 10);
+    const passToHash = password || phoneNo;
+    const hashedPassword = await bcrypt.hash(passToHash, 10);
 
     const response = await prisma.user.create({
       data: { name, phoneNo, address, email, password : hashedPassword },
